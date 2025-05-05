@@ -130,12 +130,49 @@ Run metaSPADES – **this is very time intensive! If you are doing this on multi
 for f in *.fastq; do
     if [[ $f == *R1_clean.fastq ]]; then
         n=${f%%R1_clean.fastq}
-        ~/.conda/envs/Assemblers/bin/spades.py --meta -1 ${f} -2 ${n}R2_clean.fastq -o ${n}_spades -t 94
+        ~/.conda/envs/Assemblers/bin/spades.py --meta -1 ${f} -2 ${n}R2_clean.fastq -o ${n}spades -t 94
     elif [[ $f == *R2_clean.fastq ]]; then
         n=${f%%R2_clean.fastq}
-        ~/.conda/envs/Assemblers/bin/ --meta -1 ${n}R1_clean.fastq -2 ${f} -o ${n}_spades 
+        ~/.conda/envs/Assemblers/bin/ --meta -1 ${n}R1_clean.fastq -2 ${f} -o ${n}spades 
     fi
 done
 ```
+### Part 4 - Binning
+MetaSPADES takes the sequence data and makes it into contigs, which are longer stretches of DNA which are supposed to be in one sequence (ie. putting together 20 chunks of E. coli DNA into one singular long chunk of E. coli DNA, in order). The output of SPADES is a folder called the sample name, and within the folder there are lots of other folders and files but the contigs.fasta file is the most important. However, for all samples, it will be called contigs.fasta, so we need to rename these to include the sample name.
+
+This is a lot more complicated of a process to automate, so rather than you typing it or doing it by hand, you will make and execute a python script (basically a simple program) which does it for you. Enter the following commands to create a new folder for the contigs files to move to, and then within the spades folder, create the script:
+```
+cd ..
+mkdir binning
+cd spades
+nano move_contigs.py
+```
+This will create a python script called move_contigs.py in your current folder (spades) and open the GNU nano editor. Now, copy and paste the entire segment of code (using a right click + paste to paste into the HPC) into the nano editor. 
+```
+#!/usr/bin/env python3
+
+import os
+import shutil
+# ----------
+def move_contigs(base_directory, binning_directory):
+    for root, dirs, files in os.walk(base_directory):
+        print(root, dirs, files)  
+        for file in files:
+            if file == “contigs.fasta”:
+                subdirectory_name = os.path.basename(root)
+                new_filename = f'{subdirectory_name}_contigs.fasta'
+                original_file_path = os.path.join(root, file)
+                new_file_path = os.path.join(binning_directory, new_filename)
+                shutil.copy(original_file_path, new_file_path)
+# ----------
+if __name__ == “__main__”:
+    base_directory = input(“Enter path to spades directory: “)
+    binning_directory = input(“Enter path to binning directory: “)
+    move_contigs(base_directory, binning_directory)
+```
+After that is copied in, press control X, Y, and then enter to save the script. When you run it, it will prompt you to put in the path to the spades and binning directories. These should be:
+_/xdisk/kcooper/**netid/project-name**/spades_
+_/xdisk/kcooper/**netid/project-name**/binning_
+Make sure you change your netid and project-name to match what you are doing!!!
 
 
