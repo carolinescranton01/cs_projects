@@ -176,6 +176,19 @@ After that is copied in, press control X, Y, and then enter to save the script. 
 
 /xdisk/kcooper/**netid/project-name**/binning
 
-Make sure you change your netid and project-name to match what you are doing!!!
+Make sure you change your netid and project-name to match what you are doing!
+
+To run the script, type the following:
+```
+module load python
+python3 move_contigs.py
+```
+This should rename the contigs from each folder as foldername_contigs.fasta, and copy them into binning folder. The last thing we need to do is copy the merged reads over as a template for maxbin2. These should be in the kraken folder. Copy them over and move back to the binning folder with the following code:
+```
+cd ../kraken
+cp *.fq ../binning
+cd ../binning
+```
+
 
 
