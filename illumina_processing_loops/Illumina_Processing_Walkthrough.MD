@@ -1,9 +1,10 @@
-# Loops for Illumina metagenomic processing
+# Shotgun Metagenomics (Illumina) Processing Workflow
 
 This tutorial follows a similar format to the Initial Illumina Shotgun Metagenomics Processing tutorial, but uses loops, or code which is able to ‘loop’ through multiple input files at the same time to run that particular analysis on multiple files at once. Using loops, you can write in one command and analyze all of the data in a folder, rather than going sample-by-sample. Loops take longer to run, but once you press enter it will continue to run until the process finishes or the HPC times out, so you do not need to watch the computer and can go do other things while it runs. 
 
 Example samples in this project will be called Sample1, Sample2, etc. Samples are paired reads, so each will have two files (Sample1_R1 and Sample1_R2)
 
+** non-loop commands will be listed at the end for each program if you would like to go through each step sample-by-sample**
 
 ## Setup for this tutorial:
  1.	Open the HPC for 6-12 hours with 24-94 cores (time and cores will depend on what steps you plan to run, they will be specified in each step) 
@@ -219,3 +220,27 @@ mv binning/*_checkm2 checkm2
 ```
 
 After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
+
+
+
+## non-loop commands, using sampleIDs sample_R1.fastq and sample_R2.fastq. Will need to follow along with the rest of the tutorial in order to make sure sample names and extensions are correct and that everything is in the right folders
+```
+#fastp
+fastp --in1 sample_R1.fastq --in2 sample_R2.fastq --out1 sample_trimmed_R1.fastq --out2 sample_trimmed_R2.fastq -l 50 -g -h wgs.html > wgs.log
+#trim-galore
+trim_galore --paired sample_trimmed_R1.fastq sample_trimmed_R2.fastq -o trim-galore
+#concatenating reads for kraken
+cat sample_R1_clean.fastq sample_R2_clean.fastq > sample_merged.fastq
+#kraken2
+kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report sample_report.txt --output sample_output.txt sample_merged.fastq -t 94
+#spades
+~/.conda/envs/Assemblers/bin/spades.py --meta -1 sample_R1_clean.fastq -2 sample_R2_clean.fastq -o sample_spades -t 94
+#metabat2
+metabat2 -i sample_contigs.fasta -o sample_contigs_metabat
+#maxbin2
+/home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig sample_contigs.fasta -reads sample_merged.fastq" -max_iteration 5 -out sample_maxbin2
+#checkm2 - metabat2
+checkm2 predict --threads 94 --input sample_contigs_metabat --output-directory sample_contigs_metabat_checkm2 -x .fa
+#checkm2 - maxbin2
+checkm2 predict --threads 94 --input sample_contigs_maxbin2 --output-directory sample_contigs_maxbin2_checkm2 -x .fa
+```
