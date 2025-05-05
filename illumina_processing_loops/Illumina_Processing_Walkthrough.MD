@@ -172,8 +172,9 @@ if __name__ == “__main__”:
 ```
 After that is copied in, press control X, Y, and then enter to save the script. When you run it, it will prompt you to put in the path to the spades and binning directories. These should be:
 
-_/xdisk/kcooper/**netid/project-name**/spades_
-_/xdisk/kcooper/**netid/project-name**/binning_
+/xdisk/kcooper/**netid/project-name**/spades
+
+/xdisk/kcooper/**netid/project-name**/binning
 
 Make sure you change your netid and project-name to match what you are doing!!!
 
