@@ -202,4 +202,20 @@ mkdir "${n}_maxbin2";
 /home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig "$file" -reads "${n}_merged.fastq" -max_iteration 5 -out "${n}_maxbin2"; 
 mv ${n}_maxbin2* ${n}; done
 ```
-Run CheckM2 on the bins within the folder using the following loop. **Make sure you assigned a variable to the CheckM2 database, which was one of the very first steps in this tutorial!** After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
+Run CheckM2 on the bins within the folder using the following loop. **Make sure you assigned a variable to the CheckM2 database, which was one of the very first steps in this tutorial!** First, activate the checkm2 environment (use your own, or alternatively, use the Checkm2_env in the groups folder /groups/kcooper/Checkm2_env)
+```
+conda deactivate
+conda activate /groups/kcooper/Checkm2_env
+```
+Then, use the following loop to run checkm2 on the samples:
+```
+for dir in ./*; do n="${dir}"; checkm2 predict --threads 94 --input "${n}" --output-directory "${n}_checkm2" -x .fa; done
+```
+Finall,y move all checkm2 output folders into their own folder separate from the bins
+```
+cd ..
+mkdir checkm2
+mv binning/*_checkm2 checkm2
+```
+
+After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
