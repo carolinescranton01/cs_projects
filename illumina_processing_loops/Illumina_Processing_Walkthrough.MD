@@ -12,12 +12,15 @@ Example samples in this project will be called Sample1, Sample2, etc. Samples ar
 Cleaning
  - Fastp
  - Trim-galore
+
 Metagenomics
  -	Kraken2
  - Metabat2
  - Maxbin2 – this has weird documentation, email caroline (carolinescranton@arizona.edu) if you need help
+
 Assemblers
  - Spades
+
 CheckM2 (alternatively, use the /groups/kcooper/Checkm2_env environment)
  - checkm2
 
