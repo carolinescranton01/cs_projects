@@ -201,7 +201,7 @@ Maxbin2 – copy and paste the following script after fixing the variables **u##
 for file in *.fasta; do n="${file%%_contigs.fasta}"; 
 mkdir "${n}_maxbin2";
 /home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig "$file" -reads "${n}_merged.fastq" -max_iteration 5 -out "${n}_maxbin2"; 
-mv ${n}_maxbin2* ${n}; done
+mv ${n}_maxbin2* ${n}_maxbin2; done
 ```
 Run CheckM2 on the bins within the folder using the following loop. **Make sure you assigned a variable to the CheckM2 database, which was one of the very first steps in this tutorial!** First, activate the checkm2 environment (use your own, or alternatively, use the Checkm2_env in the groups folder /groups/kcooper/Checkm2_env)
 ```
