@@ -93,5 +93,38 @@ cd ../..
 mkdir clean_reads
 cp trimmed/trim_galore/*clean* clean_reads
 ```
-### Part 2 - Assign Taxonomy (Kraken)
-Deactivate cleaning environment, activate metagenomics environment for Kraken2 analysis, make a folder for kraken2, and copy clean_reads to merged
+### Part 2 - Assign Taxonomy (Kraken - normal and special database)
+Deactivate the cleaning environment, activate the metagenomics environment for Kraken2 analysis, make a folder for kraken2, and copy clean_reads to the kraken2 folder to merge them
+```
+conda deactivate
+conda activate metagenomics
+mkdir kraken2
+cp clean_reads/*.fastq kraken2
+```
+Merge samples for Kraken2 analysis – kraken2 only takes 1 input so R1 and R2 must be merged into a singular file using the cat command (concatenate). If you have only a few samples this can be done by hand, but you can also use this loop:
+```
+for f in *.fastq; do if [[ $f == *R1*.fastq ]]; then n=${f%%R1*.fastq}; cat ${f} ${n}R2*.fastq > ${n}merged.fastq; fi; done
+```
+Remove the non-merged reads from this folder
+```
+rm -r clean.fastq
+```
+Run kraken2 on the reads. Most analysis will use the MY_KRAKEN2_DATABASE database, which is significantly smaller than the Kraken_Special_DB (contains all known genomes and non-redundant sequences, whereas MY_KRAKEN2_DATABASE does not have non-redundant sequences). Only use Kraken_Special_DB if you are on the high-memory node of the HPC and have a lot of time, and were specifically instructed to do so, as it will not succeed. This generates two text files - a report.txt and an output.txt. There are not any instructions on what to do with those in this tutorial, but they are used for analysis, so contact carolinescranton@arizona.edu if you need information on that!
+```
+for f in *.fastq; do n=${f%%.fastq}; kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report "${n}_report.txt" --output "${n}_output.txt" ${n}.fastq -t 94; done
+```
+If you are using the special database, the only change is after the --db flag, where you would write /groups/kcooper/Kraken_Special_DB (as of 5-1-25, that database is not in there - will update it when it is!)
+
+### Part 3 - assembly
+We will now go back to the non-merged reads for the rest of the analysis, which starts with assembly via metaSPADES. We need to make and move to a different folder and change conda environments
+```
+conda deactivate
+conda activate Assemblers
+cd ..
+mkdir spades
+cp clean_reads/*.fastq ../spades
+cd spades
+```
+Run metaSPADES – **this is very time intensive! If you are doing this on multiple samples, it will likely not finish all of them unless the samples are small or the HPC is open for a very long time (+100 hours)**. For context, a 2 GB paired sample took ~17 hours to run – loop can be used on small samples, if there are few samples, or if HPC is open for a while. Some parts of the loop need to be edited – the u## needs to be changed to the correct one in your path, and the Assemblers should be changed to match your conda environment name (which is probably assemblers or Assemblers). Copy and paste the following AFTER changing the highlighted sections
+
+
