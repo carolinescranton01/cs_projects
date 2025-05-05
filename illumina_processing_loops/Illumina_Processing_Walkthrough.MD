@@ -223,7 +223,10 @@ After CheckM2 is done, you have completed the tutorial. Email carolinescranton@a
 
 
 
-## non-loop commands, using sampleIDs sample_R1.fastq and sample_R2.fastq. Will need to follow along with the rest of the tutorial in order to make sure sample names and extensions are correct and that everything is in the right folders
+### Non-loop commands
+
+Examples use sampleIDs sample_R1.fastq and sample_R2.fastq. You will need to follow along with the rest of the tutorial in order to make sure sample names and extensions are correct and that everything is in the right folders
+
 ```
 #fastp
 fastp --in1 sample_R1.fastq --in2 sample_R2.fastq --out1 sample_trimmed_R1.fastq --out2 sample_trimmed_R2.fastq -l 50 -g -h wgs.html > wgs.log
