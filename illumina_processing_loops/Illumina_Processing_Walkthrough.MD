@@ -122,9 +122,20 @@ conda deactivate
 conda activate Assemblers
 cd ..
 mkdir spades
-cp clean_reads/*.fastq ../spades
+cp clean_reads/*.fastq spades
 cd spades
 ```
-Run metaSPADES – **this is very time intensive! If you are doing this on multiple samples, it will likely not finish all of them unless the samples are small or the HPC is open for a very long time (+100 hours)**. For context, a 2 GB paired sample took ~17 hours to run – loop can be used on small samples, if there are few samples, or if HPC is open for a while. Some parts of the loop need to be edited – the u## needs to be changed to the correct one in your path, and the Assemblers should be changed to match your conda environment name (which is probably assemblers or Assemblers). Copy and paste the following AFTER changing the highlighted sections
+Run metaSPADES – **this is very time intensive! If you are doing this on multiple samples, it will likely not finish all of them unless the samples are small or the HPC is open for a very long time (+100 hours)**. For context, a 2 GB paired sample took ~17 hours to run – loop can be used on small samples, if there are few samples, or if HPC is open for a while. In the loop, 'Assemblers' should be changed to match your conda environment name (which is probably assemblers or Assemblers). Copy and paste the following
+```
+for f in *.fastq; do
+    if [[ $f == *R1_clean.fastq ]]; then
+        n=${f%%R1_clean.fastq}
+        ~/.conda/envs/Assemblers/bin/spades.py --meta -1 ${f} -2 ${n}R2_clean.fastq -o ${n}_spades -t 94
+    elif [[ $f == *R2_clean.fastq ]]; then
+        n=${f%%R2_clean.fastq}
+        ~/.conda/envs/Assemblers/bin/ --meta -1 ${n}R1_clean.fastq -2 ${f} -o ${n}_spades 
+    fi
+done
+```
 
 
