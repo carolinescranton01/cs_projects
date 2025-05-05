@@ -65,4 +65,33 @@ for f in *.fastq; do
     fi;
 done
 ```
-
+Go back a folder and make a new folder called ‘trimmed’ for the trimmed reads. Move the fastp-trimmed reads to trimmed. This will give a short error that says 'cannot stat *trimmed*' – ignore this, it still works.
+```
+cd ..
+mkdir trimmed
+cd raw_reads
+mv *trimmed* ../trimmed
+```
+Move into trimmed folder to run trim-galore on the fastp-trimmed reads. Trim-galore removes adaptors (short sequences of DNA used to organize samples when sequencing multiple samples at the same time, which next-generation sequencing like Illumina almost always does). Copy and paste the following loop (again, don’t try to type it, the formatting will be messed up). This will run trim-galore on the samples and put outputs into a folder called trim-galore. The outputs from the two trimming steps are now going to be called ‘clean reads’ and will be moved into a folder to keep them separate for the rest of the analysis
+```
+cd ../trimmed
+for f in *.fastq; do
+  if [[ $f == *R1.fastq ]]; then
+    n=${f%%R1.fastq}
+    trim_galore --paired ${f} ${n}R2.fastq -o trim-galore
+  fi
+done
+```
+After running trim-galore we want to rename out outputs (names are getting too long). Follow the two loops to rename the R1 and then the R2 files with _clean at the end to denote that these are the clean reads. Move into the trim-galore file, then copy and paste the loop.
+```
+cd trim-galore
+for f in *; do n=${f%%}; mv "${n}" "${f//trimmed_R1_val_1.fq/R1_clean.fastq}"; mv "${n}" "${f//trimmed_R2_val_2.fq/R2_clean.fastq}"; done
+```
+Copy the double-trimmed and renamed reads to a new folder called clean_reads. 
+```
+cd ../..
+mkdir clean_reads
+cp trimmed/trim_galore/*clean* clean_reads
+```
+### Part 2 - Assign Taxonomy (Kraken)
+Deactivate cleaning environment, activate metagenomics environment for Kraken2 analysis, make a folder for kraken2, and copy clean_reads to merged
