@@ -38,3 +38,31 @@ export CHECKM2DB=/groups/kcooper/CheckM2_database/uniref100.KO.1.dmnd
 Then, press control X, then y, and then enter and the window will close
 
  4.	Make a directory for your project in your xdisk folder on the HPC. Inside this folder, make a folder called raw_reads, and import the data into this folder using globus or another means of importing data as .fastq or .fastq.gz files
+
+At this point you are ready to begin the tutorial!
+
+## Tutorial
+### Part 1 - cleaning the raw data
+
+Initialize conda in your terminal
+``` 
+module load anaconda
+source .bashrc
+```
+Activate the cleaning environment - name may vary based on what you named it, should be Cleaning or cleaning, but if you need to check the list of envs you have, type 'conda env list' and it will list them all.
+
+Firstly, filter the reads with fastp - Move into the raw_reads folder where samples are housed and COPY AND PASTE the following command (right-click to paste on HPC). Do not type this by hand, or the formatting will be messed up and it won’t work. The loop assumes samples are in .fastq format and names end in R1.fastq, so either change this or change sample names to fit these requirements. Command runs the input samples through the fastp software and generates outputs Sample_trimmed_R1.fastq and Sample_trimmed_R2.fastq for each sample. This may give some short errors 'cannot stat "sample__trimmed*" ' – ignore this error message
+
+```
+cd raw_reads
+for f in *.fastq; do
+    if [[ $f == *R1.fastq ]]; then
+        n=${f%%R1.fastq}
+        fastp --in1 ${f} --in2 ${n}R2.fastq --out1 ${n}trimmed_R1.fastq --out2 ${n}trimmed_R2.fastq -l 50 -g -h wgs.html > wgs.log
+    elif [[ $f == *R2.fastq ]]; then
+        n=${f%%R2.fastq}
+        fastp --in1 ${n}R1.fastq --in2 ${f} --out1 ${n}trimmed_R1.fastq --out2 ${n}trimmed_R2.fastq -l 50 -g -h wgs.html > wgs.log
+    fi;
+done
+```
+
