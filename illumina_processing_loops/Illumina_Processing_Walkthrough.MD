@@ -189,6 +189,17 @@ cd ../kraken
 cp *.fastq ../binning
 cd ../binning
 ```
+Now we should have specifically-named contig .fasta files for each sample as well as the clean _merged.fastq files for each sample (with matching names), and can continue with metabat and maxbin2 binning
 
-
-
+Metabat2 - in the binning folder, copy and paste this to run. It will make directories titled with the sample names (samplename_contigs)_metabat with the metabat outputs in them
+```
+for f in *.fasta; do n=${f%%.fasta}; mkdir ${n}_metabat2; metabat2 -i ${n}.fasta -o ${n}_metabat; mv ${n}*.fa ${n}_metabat2; done
+```
+Maxbin2 – copy and paste the following script after fixing the variables **u##, netid, and the environment (likely metagenomics)** to run Maxbin2 on the samples, using the original clean reads as a template to predict abundance. 
+```
+for file in *.fasta; do n="${file%%_contigs.fasta}"; 
+mkdir "${n}_maxbin2";
+/home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig "$file" -reads "${n}_merged.fastq" -max_iteration 5 -out "${n}_maxbin2"; 
+mv ${n}_maxbin2* ${n}; done
+```
+Run CheckM2 on the bins within the folder using the following loop. **Make sure you assigned a variable to the CheckM2 database, which was one of the very first steps in this tutorial!** After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
