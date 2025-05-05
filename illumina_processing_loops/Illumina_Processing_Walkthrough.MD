@@ -24,4 +24,17 @@ Assemblers
 CheckM2 (alternatively, use the /groups/kcooper/Checkm2_env environment)
  - checkm2
 
-See links to github pages or other repositories for more information on installation. Most are installed using bioconda (so use this if possible) but others require different processes
+See links to github pages or other repositories for more information on installation. Most are installed using bioconda (so use this if possible) but others require different processes.
+
+ 3. Setting CheckM2 environmental variable - only needs to be done once (ever), it tells checkm2 where to find the database it needs to run
+
+```
+nano ~/.bashrc
+```
+This will open the bashrc script for you to edit. Use the down arrow key to scroll all the way to the bottom. Add the following line to the bottom of the bashrc file:
+```
+export CHECKM2DB=/groups/kcooper/CheckM2_database/uniref100.KO.1.dmnd
+```
+Then, press control X, then y, and then enter and the window will close
+
+ 4.	Make a directory for your project in your xdisk folder on the HPC. Inside this folder, make a folder called raw_reads, and import the data into this folder using globus or another means of importing data as .fastq or .fastq.gz files
