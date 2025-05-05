@@ -6,21 +6,22 @@ Example samples in this project will be called Sample1, Sample2, etc. Samples ar
 
 
 ## Setup for this tutorial:
-> 1.	Open the HPC for 6-12 hours with 24-94 cores (time and cores will depend on what steps you plan to run, they will be specified in each step) 
-> 2.	Create conda environments and install all required software for this tutorial
->     a. Cleaning
->         i.Fastp
->        ii.Trim-galore
->    b.	Metagenomics
->        i.	Kraken2
->        ii. Metabat2
->        iii. Maxbin2 – this has weird documentation, email caroline (carolinescranton@arizona.edu) if you need help
->    c.	Assemblers
->        i.	Spades
->    d.	CheckM2 (alternatively, use the /groups/kcooper/Checkm2_env environment)
->        i. checkm2
-
-# See links to github pages or other repositories for more information on installation. Most are installed using bioconda (so use this if possible) but others require different processes
+'''
+ 1.	Open the HPC for 6-12 hours with 24-94 cores (time and cores will depend on what steps you plan to run, they will be specified in each step) 
+ 2.	Create conda environments and install all required software for this tutorial
+     a. Cleaning
+         i.Fastp
+        ii.Trim-galore
+    b.	Metagenomics
+        i.	Kraken2
+        ii. Metabat2
+        iii. Maxbin2 – this has weird documentation, email caroline (carolinescranton@arizona.edu) if you need help
+    c.	Assemblers
+        i.	Spades
+    d.	CheckM2 (alternatively, use the /groups/kcooper/Checkm2_env environment)
+        i. checkm2
+'''
+See links to github pages or other repositories for more information on installation. Most are installed using bioconda (so use this if possible) but others require different processes
 
 3.	Set environmental variables – this only needs to be done once; it tells the commands where to look for specific databases
 >nano ~/.bashrc
