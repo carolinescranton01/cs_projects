@@ -186,7 +186,7 @@ python3 move_contigs.py
 This should rename the contigs from each folder as foldername_contigs.fasta, and copy them into binning folder. The last thing we need to do is copy the merged reads over as a template for maxbin2. These should be in the kraken folder. Copy them over and move back to the binning folder with the following code:
 ```
 cd ../kraken
-cp *.fq ../binning
+cp *.fastq ../binning
 cd ../binning
 ```
 
