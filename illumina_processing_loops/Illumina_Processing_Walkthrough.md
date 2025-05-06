@@ -3,6 +3,7 @@
 This tutorial follows a similar format to the Initial Illumina Shotgun Metagenomics Processing tutorial, but uses loops, or code which is able to ‘loop’ through multiple input files at the same time to run that particular analysis on multiple files at once. Using loops, you can write in one command and analyze all of the data in a folder, rather than going sample-by-sample. Loops take longer to run, but once you press enter it will continue to run until the process finishes or the HPC times out, so you do not need to watch the computer and can go do other things while it runs. 
 
 Example samples in this project will be called Sample1, Sample2, etc. Samples are paired reads, so each will have two files (Sample1_R1 and Sample1_R2)
+At the bottom there is a visualization of the file structure and key files in each folder. 
 
 **non-loop commands will be listed at the end for each program if you would like to go through each step sample-by-sample**
 
@@ -247,3 +248,6 @@ checkm2 predict --threads 94 --input sample_contigs_metabat --output-directory s
 #checkm2 - maxbin2
 checkm2 predict --threads 94 --input sample_contigs_maxbin2 --output-directory sample_contigs_maxbin2_checkm2 -x .fa
 ```
+<img width="995" alt="Screenshot 2025-05-06 at 9 16 52 AM" src="https://github.com/user-attachments/assets/38c314a3-a3c1-4828-8591-75110feca164" />
+
+
