@@ -46,10 +46,11 @@ At this point you are ready to begin the tutorial!
 ## Tutorial
 ### Part 1 - cleaning the raw data
 
-Initialize conda in your terminal
+Initialize conda in your terminal and go to the xdisk where your data is stored (make sure to change 'netid' in the last command to YOUR net ID!) 
 ``` 
 module load anaconda
 source .bashrc
+cd /xdisk/kcooper/netid
 ```
 Activate the cleaning environment - name may vary based on what you named it, should be Cleaning or cleaning, but if you need to check the list of envs you have, type 'conda env list' and it will list them all.
 
@@ -248,6 +249,6 @@ checkm2 predict --threads 94 --input sample_contigs_metabat --output-directory s
 #checkm2 - maxbin2
 checkm2 predict --threads 94 --input sample_contigs_maxbin2 --output-directory sample_contigs_maxbin2_checkm2 -x .fa
 ```
-<img width="995" alt="Screenshot 2025-05-06 at 9 16 52 AM" src="https://github.com/user-attachments/assets/38c314a3-a3c1-4828-8591-75110feca164" />
+<img width="637" alt="Screenshot 2025-05-07 at 9 31 49 AM" src="https://github.com/user-attachments/assets/83317be4-4b98-42b7-90a6-a8f42db176c9" />
 
 
