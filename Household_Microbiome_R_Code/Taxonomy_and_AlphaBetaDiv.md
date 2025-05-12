@@ -140,28 +140,28 @@ plot_ordination(biom_rar, biom_data, "bray", color = "Geographic_Location", shap
     font("xlab", size = 12, face = "bold") + font("title", size = 10, face = "bold")
 ```
 
-Generating taxonomic relative abundance graphs
->biom_phylum <- aggregate_top_taxa2(biomfile, top = 10, "Phylum") 
->biom_phylum.rel <- microbiome::transform(biom_phylum, "compositional")
->biom_phylum.rel <- psmelt(biom_phylum.rel)
+**Generating taxonomic relative abundance graphs**
+
+```
+biom_phylum <- aggregate_top_taxa2(biomfile, top = 10, "Phylum") 
+biom_phylum.rel <- microbiome::transform(biom_phylum, "compositional")
+biom_phylum.rel <- psmelt(biom_phylum.rel)
 
 # Convert phyloseq object to a data frame
->dfphy <- psmelt(biom_phylum.rel)
->biom_phy.rel.abun <- ggplot(dfphy, aes(x = Household_Location, y = Abundance, 
+dfphy <- psmelt(biom_phylum.rel)
+biom_phy.rel.abun <- ggplot(dfphy, aes(x = Household_Location, y = Abundance, 
 fill = Phylum)) +
 geom_bar(stat = "identity") +
  	facet_wrap(~ Geographic_Location, scales = "free_x") +
-theme(legend.position = "bottom", legend.text = element_text(size = 6), 
-legend.title = element_text(size = 10), legend.key.size = unit(0.5, "cm"), 
-legend.spacing.y = unit(0.1, "cm")) +
+  theme(legend.position = "bottom", legend.text = element_text(size = 6), legend.title = element_text(size = 10), legend.key.size = unit(0.5, "cm"), 
+  legend.spacing.y = unit(0.1, "cm")) +
  	scale_fill_brewer("Phylum", palette = "Paired") + 
  	theme_bw() + 
-  	theme(axis.text.x = element_text(angle = 90, size = 6)) + 
-labs(title = "Relative Abundance by Household Location", x = "Household Location",
-y = "Relative Abundance") + guides(fill = guide_legend(title = "Phylum", 
-title.theme = element_text(size = 10), label.theme = element_text(size = 8), 
-keywidth = unit(0.5, "cm"), keyheight = unit(0.5, "cm")))
+  theme(axis.text.x = element_text(angle = 90, size = 6)) + 
+  labs(title = "Relative Abundance by Household Location", x = "Household Location", y = "Relative Abundance") +
+  guides(fill = guide_legend(title = "Phylum", title.theme = element_text(size = 10), label.theme = element_text(size = 8), keywidth = unit(0.5, "cm"), keyheight = unit(0.5, "cm")))
 
->print(biom_phy.rel.abun)
+print(biom_phy.rel.abun)
+```
 
-NOTE: The same methods were used for other taxonomic levels. x was changed to geographic_location when looking at each city overall. Data can be subsetted to look at specific geographic or household location’s taxonomy
+**NOTE:** The same code as above were used for other taxonomic levels. 'X' was changed to geographic_location when looking at each city overall. Data can be subsetted by taxonomic ranks to look at specific geographic or household location’s taxonomy
