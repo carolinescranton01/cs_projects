@@ -1,6 +1,6 @@
 ## Antibiotic resistance gene and virulence factor abundance and alpha/beta diversity analysis
 
-### Part 1 - Setup
+## Part 1 - Setup
 
 **Step 1 - load required packages**
 
@@ -92,7 +92,7 @@ VFDB_RA_barplot_comp <- ggplot(filtered_data, aes(x = Household_Location, y = To
 print(VFDB_RA_barplot_comp)
 ```
 
-### Part 3 - Gene Alpha and Beta Diversity
+## Part 3 - Gene Alpha and Beta Diversity
 
 **Step 1 - data restructuring**
 
