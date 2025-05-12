@@ -17,7 +17,7 @@ library(dplyr)
 library(writexl)
 ```
 
-**Step 2 - re-format abricate outputs (.txt files, one per sample per database) into excel sheets**
+**Step 2 - re-format abricate outputs (.tab files, one per sample per database) into excel sheets**
 One sheet was made for the virulence factors (detected using the Virulence Factor Database VFDB), and another for the antibiotic resistance genes detected with the ResFinder database. Columns included the Sample_ID and other metadata (location, house number, household location, scaled number of reads) and then gene name and gene function as two columns, followed by the number of occurrences of that gene in the specific sample, and the scaled occurrences (occurrences / scaled reads) in the sample. All of this reformatting was done in excel, using the python scripts writeexcel.py and sortexcel.py, found in this github repository
 
 
