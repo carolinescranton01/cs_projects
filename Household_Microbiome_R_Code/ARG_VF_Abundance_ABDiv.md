@@ -99,14 +99,7 @@ print(VFDB_RA_barplot_comp)
 This requires certain data to be restructured again, but in R this time. Below is an example on how to restructure the data. The example data is called biom_res and is a data frame with 3 columns – FullName (which is the sample_ID), Gene_Name, and Scaled_Occurrences. If one sample had ten different ARGs/VFs detected, it will have ten rows in this data frame with the same FullName value and different Gene_Name and Scaled_Occurrences values for each row. Data was structured in Microsoft Excel and imported using read_xlsx(). This also requires a metadata file with info on the samples to use when graphing diversity (ie. sample ID, location) – in this example called metadata_res.
 
 Restructure data so that there are now many columns (each is a Gene_Name), and all samples (FullName) have one row. Should be a large matrix, where if a specific gene is detected in a sample, it’s scaled occurrence will be in that column, but if a gene was not detected in that sample, it will have a 0. 
-
-Example data structure before pivot_wider command:
-FullName	Gene_Name	Scaled_Occurrences
-A	        Gene1	        0.2
-A	        Gene2	        0.3
-B	        Gene1	        0.1
-C	        Gene2	        0.01
-C	        Gene3	        0.5
+<img width="374" alt="Screenshot 2025-05-12 at 3 38 16 PM" src="https://github.com/user-attachments/assets/6e46db5a-289f-47a6-be69-729eb2a9838f" />
 
 Run the pivot_wider command:
 
@@ -114,12 +107,8 @@ Run the pivot_wider command:
 wide_data_res <- biom_res %>%
         pivot_wider(names_from = Gene_Name, values_from = Scaled_Occurances, values_fill=0)
 ```
+<img width="376" alt="Screenshot 2025-05-12 at 3 38 26 PM" src="https://github.com/user-attachments/assets/c8f47246-49a2-44e9-bf1b-2e86ce6acca2" />
 
-Example data structure after pivot_wider command:
-FullName	Gene1	Gene2	Gene3
-A	        0.2	    0.3	    0.0
-B	        0.1	    0.0	    0.0
-C	        0.0	    0.01	0.5
 
 **Step 2 - alpha diversity**
 
