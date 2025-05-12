@@ -1,4 +1,4 @@
-### RMarkdown walkthrough on how to analyze .biom files for taxonomic composition, alpha diversity, and beta diversity
+## RMarkdown walkthrough on how to analyze .biom files for taxonomic composition, alpha diversity, and beta diversity
 
 This code was used to analyze all samples for both bacterial and viral taxa, with a few minor edits (such as changing the taxonomic ranks for viruses)
 
@@ -23,6 +23,7 @@ biomfile <- import_biom(BIOMfilename = “PATH/TO/YOUR/FILE/biomfile.biom”)
 ```
 
 **Step 3: Change column names in taxonomy to taxonomic levels (instead of ‘Rank 1’, ‘Rank 2’, etc)**
+
 For bacteria, use c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"). For viruses, use c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
 
 ```
@@ -30,6 +31,7 @@ colnames(tax_table(biomfile)) <- c("Domain", "Phylum", "Class", "Order", "Family
 ```
 
 **Step 3.5 (OPTIONAL): If needed, replace metadata within biom file using excel file with updated metadata (has to have same Sample_ID as biom file)**
+
 If you need to add additional metadata to the .biom file, create a new excel file with the entire (updated) metadata set. Make sure the sample_ID column matches the sample_ID column in the original metadata/the .biom file - the actual values within the column as well as the header must match for this to work! In this example, the column header is Sample_ID.
 
 ```
