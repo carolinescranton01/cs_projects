@@ -2,7 +2,10 @@
 
 This code was used to analyze all samples for both bacterial and viral taxa, with a few minor edits (such as changing the taxonomic ranks for viruses)
 
+### Part 1 - setup and data cleanup
+
 **Step 1. Load required packages**
+
 ```
 library(speedyseq)
 library(microbiome) 
@@ -42,49 +45,60 @@ updated_metadata_2$Sample_ID <- NULL
 biomfile <- merge_phyloseq(biomfile, updated_metadata_2)
 ```
 
-Remove unwanted taxa
+**Step 4: Remove unwanted taxa**
+
+The database used to assign taxonomic IDs for this dataset included all known and non-redundant sequences in the NCBI database (for the viral analysis, this is not the case - the database used only included viral DNA). We need to remove some of these sequences as they are considered contaminants in the dataset.
+
+```
 #remove mitochondira
->biomfile_nomitochondria <- subset_taxa(biomfile, Family != "Mitochondria")
->ntaxa(biomfile)-ntaxa(biomfile_nomitochondria)
-
+biomfile_nomitochondria <- subset_taxa(biomfile, Family != "Mitochondria")
+ntaxa(biomfile)-ntaxa(biomfile_nomitochondria)
 #remove chloroplast
->biomfile_nochloroplast<- subset_taxa(biomfile, Family != "Chloroplast")
->ntaxa(biomfile)-ntaxa(biomfile_nochloroplast)
-
+biomfile_nochloroplast<- subset_taxa(biomfile, Family != "Chloroplast")
+ntaxa(biomfile)-ntaxa(biomfile_nochloroplast)
 # remove Human DNA
->biomfile_nohuman <- subset_taxa(biomfile, Family != "Hominidae")
->ntaxa(biomfile)-ntaxa(biomfile_nohuman)
->biomfile_nohuman2 <- subset_taxa(biomfile, Genus != "Homo")
->ntaxa(biomfile)-ntaxa(biomfile_nohuman2)
+biomfile_nohuman <- subset_taxa(biomfile, Family != "Hominidae")
+ntaxa(biomfile)-ntaxa(biomfile_nohuman)
+biomfile_nohuman2 <- subset_taxa(biomfile, Genus != "Homo")
+ntaxa(biomfile)-ntaxa(biomfile_nohuman2)
+```
 
+Now we should just be left with bacteria reads, and can start analyzing these reads
 
-Preliminary figures to look at phyla prevalence, sequencing depth, etc
+### Part 2 - figures and diversity analysis
+
+**Preliminary figures to look at phyla prevalence, sequencing depth, etc**
+These figures are generated to assess the data quality and completeness overall. 
+
+```
 #Phylum plot
->biom_1 <- plot_taxa_cv(biomfile, plot.type = "scatter")
->biom_1 + scale_x_log10()
+biom_1 <- plot_taxa_cv(biomfile, plot.type = "scatter")
+biom_1 + scale_x_log10()
 
-#Sequencing depth by geographic location
->biom_seqdepth.ngtax_Geo <- plot_read_distribution(biomfile, "Geographic_Location", "density")
->print(biom_seqdepth.ngtax_Geo)
-
-#Sequencing depth by household location
->biom_seqdepth.ngtax_House <- plot_read_distribution(biomfile, "Household_Location", "density")
->print(biom_seqdepth.ngtax_House)
+#Sequencing depth by geographic location - can be changed to any column in the metadata
+biom_seqdepth.ngtax_Geo <- plot_read_distribution(biomfile, "Geographic_Location", "density")
+print(biom_seqdepth.ngtax_Geo)
 
 #Histogram of ASVs – reformat data structure and then graph
->biom_histogram_data<- data.table(
+biom_histogram_data<- data.table(
   	tax_table = as.data.frame(tax_table(biomfile)),
   	ASVabundance = taxa_sums(biomfile),
   	ASV = taxa_names(biomfile))
->biom_histogram_plot <- ggplot(biom_histogram_data, aes(ASVabundance)) +  
+biom_histogram_plot <- ggplot(biom_histogram_data, aes(ASVabundance)) +  
 geom_histogram() + ggtitle("Histogram of ASVs (unique sequence) counts") + theme_bw() + scale_x_log10() + ylab("Frequency of ASVs") + xlab("Abundance (raw counts)")
->print(biom_histogram_plot)
+print(biom_histogram_plot)
+```
 
-Rarefication of samples + plot for beta diversity analysis 
->set.seed(1234)
->biom_rar <- rarefy_even_depth(biomfile, sample.size = 10000) # can increase number
->print(biom_rar)# Note what number you use
->barplot(sample_sums(biom_rar), las =2)
+**Rarefication of samples + plot for beta diversity analysis**
+
+Samples must be rarefied to account for some sequences having less data than others
+
+```
+set.seed(1234)
+biom_rar <- rarefy_even_depth(biomfile, sample.size = 10000) # choose as high as possible number that does not lead to significant data loss
+print(biom_rar)
+barplot(sample_sums(biom_rar), las =2)
+```
 
 Alpha diversity calculations
 >biom.alphadiv <- alpha(biom_rar, index = "all")
