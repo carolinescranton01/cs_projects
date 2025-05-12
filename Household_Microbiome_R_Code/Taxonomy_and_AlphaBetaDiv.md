@@ -68,6 +68,7 @@ Now we should just be left with bacteria reads, and can start analyzing these re
 ### Part 2 - figures and diversity analysis
 
 **Preliminary figures to look at phyla prevalence, sequencing depth, etc**
+
 These figures are generated to assess the data quality and completeness overall. 
 
 ```
@@ -85,7 +86,12 @@ biom_histogram_data<- data.table(
   	ASVabundance = taxa_sums(biomfile),
   	ASV = taxa_names(biomfile))
 biom_histogram_plot <- ggplot(biom_histogram_data, aes(ASVabundance)) +  
-geom_histogram() + ggtitle("Histogram of ASVs (unique sequence) counts") + theme_bw() + scale_x_log10() + ylab("Frequency of ASVs") + xlab("Abundance (raw counts)")
+geom_histogram() +
+    ggtitle("Histogram of ASVs (unique sequence) counts") +
+    theme_bw() +
+    scale_x_log10() +
+    ylab("Frequency of ASVs") +
+    xlab("Abundance (raw counts)")
 print(biom_histogram_plot)
 ```
 
@@ -100,21 +106,39 @@ print(biom_rar)
 barplot(sample_sums(biom_rar), las =2)
 ```
 
-Alpha diversity calculations
->biom.alphadiv <- alpha(biom_rar, index = "all")
+**Alpha diversity calculations**
 
-NOTE: Alpha diversity was exported into excel and added into a new dataframe with sample metadata (sample ID, geographic location, household location, etc) which was re-uploaded to R and used for ggplot box+whisker plots which used ANOVA for statistical analysis. Below is an example of the code for a plot
+```
+biom.alphadiv <- alpha(biom_rar, index = "all")
+```
 
->household_shannon_div <- ggboxplot(diversity_dataframe, x = "Household_Location", 
-y = "diversity_shannon") + rotate_x_text() + ylim(0, 10) +  theme(legend.position="none")+labs(title="Shannon Diversity in Households in Different Cities") + stat_compare_means(aes(group=Household_Location), label = 
-'p.format', method='anova', label.y=5, label.x=1.5)+facet_wrap(~Geographic_Location)
+**NOTE**: Alpha diversity was exported into excel and added into a new dataframe with sample metadata (sample ID, geographic location, household location, etc) which was re-uploaded to R and used for ggplot box+whisker plots which used ANOVA for statistical analysis. 
 
-Beta diversity code
->biom_data <- ordinate(biom_rar, "PCoA", "bray")
->plot_ordination(biom_rar, biom_data, "bray", color = "Geographic_Location", 
-shape = "Geographic_Location") + geom_point(size = 1)+ ggtitle("PCoA of Data") + font("ylab", size = 12, face = "bold") + 
-stat_ellipse(aes(color = Geographic_Location), level = 0.95, size = 0.5) + 
-font("xlab", size = 12, face = "bold") + font("title", size = 10, face = "bold")
+Below is an example of the code for a plot with statistics. X can be changed to different columns in the metadata, and Y can be changed to different alpha diversity metrics, calculated with the command above:
+
+```
+household_shannon_div <- ggboxplot(diversity_dataframe, x = "Household_Location", y = "diversity_shannon") +
+    rotate_x_text() +
+    ylim(0, 10) +
+    theme(legend.position="none") +
+    labs(title="Shannon Diversity in Households in Different Cities") +
+    stat_compare_means(aes(group=Household_Location), label = 'p.format', method='anova', label.y=5, label.x=1.5) +
+    facet_wrap(~Geographic_Location)
+```
+
+**Beta diversity calculations**
+
+PCoA ordination and plot. Data can be subsetted before ordination to run an analysis on specific sets of samples
+
+```
+biom_data <- ordinate(biom_rar, "PCoA", "bray")
+plot_ordination(biom_rar, biom_data, "bray", color = "Geographic_Location", shape = "Geographic_Location") +
+    geom_point(size = 1) +
+    ggtitle("PCoA of Data") +
+    font("ylab", size = 12, face = "bold") + 
+    stat_ellipse(aes(color = Geographic_Location), level = 0.95, size = 0.5) + 
+    font("xlab", size = 12, face = "bold") + font("title", size = 10, face = "bold")
+```
 
 Generating taxonomic relative abundance graphs
 >biom_phylum <- aggregate_top_taxa2(biomfile, top = 10, "Phylum") 
