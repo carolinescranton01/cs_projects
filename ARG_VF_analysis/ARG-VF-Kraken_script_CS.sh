@@ -33,6 +33,9 @@ cp *VFDB.tab ../VFDB
 cp *resfinder.tab ../resfinder
 done
 
+conda deactivate
+conda activate DeepARG
+
 for f in *.fastq
 do
 n=${f%%.fastq}
@@ -42,6 +45,7 @@ done
 
 conda deactivate
 conda activate Metagenomics
+
 for f in *.fastq
 do
 n=${f%%.fastq}
