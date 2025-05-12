@@ -16,7 +16,7 @@ tgt_wb = xlsxwriter.Workbook('consolidated_data.xlsx')
 tgt_ws = tgt_wb.add_worksheet()
 
 # Set the header row
-tgt_ws.write('A1', 'Sheet _Name')
+tgt_ws.write('A1', 'Sheet_Name')
 tgt_ws.write('B1', 'Gene_Name')
 tgt_ws.write('C1', 'Gene_Function')
 tgt_ws.write('D1', 'Occurrences')
