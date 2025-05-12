@@ -60,3 +60,5 @@ kraken2-biom *_report.txt -m metadata.tsv -o output.biom
 ```
 
 The output.biom file can be exported off the HPC and uploaded into R for analysis. 
+
+After this script was run, all data was exported off the HPC in folders and compiled into excel spreadsheets for further analysis in R using the writeexcel.py and sortexcel.py python scripts, found in this github repository. 
