@@ -53,7 +53,5 @@ kraken2 --db /xdisk/kcooper/kcooper/Kraken_Special_DB --report ${n}_K2_report.tx
 cp *.txt ../KRAKEN2
 done
 
-# make sure that kraken.biom file is in KRAKEN folder, titled 'metadata.tsv'
 
-kraken2-biom *_report.txt -m metadata.tsv -o output.biom
 
