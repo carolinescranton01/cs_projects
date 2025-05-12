@@ -1,12 +1,14 @@
+# compile the .tab files from each sample into a singular excel sheet with tabs for each sample, which can be consolidated into a single sheet using the sortexcel.py script
+
 import os
 import csv
 import xlsxwriter
 
-# Set the directory path where your .tab files are located for a singular database
+# Set the directory path to where your .tab files are located for a singular database
 tab_file_dir = '/path/to/results'
 
 # Create an excel file, and set the output Excel file path and name
-excel_file_path = '/path/to/excel/database_compiled.xlsx'
+excel_file_path = '/path/to/excel/compiled_data.xlsx'
 
 # Create an Excel workbook object
 workbook = xlsxwriter.Workbook(excel_file_path)
