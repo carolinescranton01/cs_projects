@@ -1,6 +1,6 @@
 ## RMarkdown walkthrough on how to analyze .biom files for taxonomic composition, alpha diversity, and beta diversity
 
-This code was used to analyze all samples for both bacterial and viral taxa, with a few minor edits (such as changing the taxonomic ranks for viruses)
+This code was used to analyze all samples for both bacterial, viral, and eukaryotic pathogen taxa, with a few minor edits (such as changing the taxonomic ranks for viruses)
 
 ### Part 1 - setup and data cleanup
 
