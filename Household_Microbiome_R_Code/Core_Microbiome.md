@@ -56,3 +56,5 @@ print(lysol.all.core.taxa90.phy)
 
 Data can be subsetted by different locations using the subset() function, and core microbiome analysis can be run on different sets of data (ie. all samples in one household or from one city) at different phylogenetic levels and with different detection and prevalence levels.
 
+Note - the core microbiome for ARGs and VFs was determined using Venn diagrams (inputs were lists of the detected genes in each composite sample. Core genes were those found in the middle of the Venn diagram)
+
