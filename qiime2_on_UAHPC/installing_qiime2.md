@@ -27,7 +27,7 @@ apptainer exec -B $PWD:/data amplicon_2024.10.sif qiime tools import \
   --input-path 16s_R01_1and2 \
   --output-path 16s_R01_1and2_sequences.qza
 ```
-When using qiime2, you should go to the xdisk and into the qiime2 folder, upload your data, and run the analysis within that folder. The data needs to be in the same folder as the aplicon_2024.10.sif file in order for qiime2 to work. When it is all done, copy the outputs into a folder named after the specific project. Alternatively, you can create a new folder within the qiime2 folder, upload your raw data, and enter that folder to run the commands, but rather than running $PWD:/data in the apptainer exec command, you would write out the entire path to the qiime2 folder with the amplicon_2024.10.sif file in it (change netid to your netid)- 
+When using qiime2, you should go to the xdisk and into the qiime2 folder, upload your data, and run the analysis within that folder. The data needs to be in the same folder as the amplicon_2024.10.sif file in order for qiime2 to work. When it is all done, copy the outputs into a folder named after the specific project. Alternatively, you can create a new folder within the qiime2 folder, upload your raw data, and enter that folder to run the commands, but rather than running $PWD:/data in the apptainer exec command, you would write out the entire path to the qiime2 folder with the amplicon_2024.10.sif file in it (change netid to your netid)- 
 ```
 apptainer exec -B /xdisk/kcooper/netid/qiime2:/data amplicon_2024.10.sif qiime
 ```
