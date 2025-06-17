@@ -96,18 +96,64 @@ MetaPHlAn assigns taxonomy to the samples by identifying specific genes within t
 ```
 cd ..
 mkdir metaphlan
+
 # for single-end reads
-for f in clean_reads/*.fastq; do base=$(basename "$f" .fastq); metaphlan "$f" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 5 --input_type fastq -o "${base}_profiled.txt"; done
+for f in clean_reads/*.fastq; do base=$(basename "$f" .fastq); metaphlan "$f" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 5 --input_type fastq -o "${base}_profiled.tsv"; done
 
 # for paired-end reads
 for f1 in clean_reads/*_1.fastq; do
   base=$(basename "$f1" _1.fastq)
   f2="clean_reads/${base}_2.fastq"
   if [ -f "$f2" ]; then
-    metaphlan "${f1},${f2}" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 5 --input_type fastq -o "${base}_profiled.txt"
+    metaphlan "${f1},${f2}" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 8 --input_type fastq -o "${base}_profiled.tsv" -t rel_ab_w_read_stats
   else
     echo "Warning: Paired file for $f1 not found. Skipping."
   fi
 done
 ```
+This command should output 2 files per sample into the main directory (whether they were paired-end or not) - one ending in .bz2, which contains information on how the reads were aligned, and one ending in .tsv, which contains the alignment information in a readable format (tab deliminated).
+
+Finally, for future analysis, we want to merge our outputs into one large table using a pre-installed script.
+NOTE - 6/17/25 - some issue w the .tsv files and merge script. it does not work due to formatting or metaphlan version (working on it!)
+```
+mkdir metaphlan
+mv *.tsv metaphlan
+mv *.bz2 metaphlan
+cd metaphlan
+merge_metaphlan_tables.py *.tsv > merged_abundance_table.tsv
+```
+
+### Step 3 - assigning functions to genes usin HUMAnN
+Link to github: https://github.com/biobakery/humann
+
+HUMAnN looks at the nucleotide sequences and translates them into potential proteins to identfy the functional capabilities of the bacteria within the sample. It uses 2 databases (chocophlan for a nucleotide search and uniref90 for a translated search). Either of the searches can be bypassed to save time, but running both generates a bettter picture of the capabilities of the microbes in the sample. Humann does not work as well on paired-end reads, so for paired-end reads we will concatonate (join) the forward R1 and reverse R2 fastq files.
+
+NOTE - as of 6/17/25, only the chocophlan DB is installed (not enough space on drive for uniref90, will download when necessary). Humann must be run with --bypass-translated-search flag in order to work. 
+
+First we will copy and concatenate the reads in a new folder:
+
+```
+cd ..
+mkdir humann
+cp clean_reads/*.fastq humann
+cd humann
+for f in *.fastq; do if [[ $f == *_1.fastq ]]; then n=${f%%_1.fastq}; cat ${f} ${n}_2.fastq > ${n}_merged.fastq; fi; done
+rm *_1.fastq
+rm *_2.fastq
+```
+
+Now we should only have the merged read samples (samplename_merged.fastq). To run Humann on them use the following:
+
+```
+for f in *.fastq; do
+  base=${f%.fastq}       
+  base=${base%_merged}  
+  tsv="../metaphlan/${base}_profiled.tsv"
+  humann --input "$f" --output humann_out --taxonomic-profile "$tsv" --bypass-translated-search
+done
+```
+
+
+
+
 
