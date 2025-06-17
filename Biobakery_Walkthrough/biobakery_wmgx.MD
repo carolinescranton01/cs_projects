@@ -46,5 +46,42 @@ Link to github page: https://github.com/biobakery/kneaddata
 
 Kneaddata takes raw sequencing data (can be zipped, fastq.gz) and removes adaptors, host contamination, and tandem repeats. This leaves you with a cleaner sequence to do other analysis on, reducing the chances of misinterpreting the data and making the analysis more accurate. 
 
-To run kneaddata you need a certain version of java (another software, but it is different from the usual 'conda' packages we install)
+Right now only the human genome is downloaded for filtering contamination, but other databases can be downloaded at the provided link AND custom databases can be built if you are processing data from a non-human organism.
+
+To begin the analysis we will move to the raw_reads folder on the xdisk with the samples in it:
+```
+cd /xdisk/kcooper/[your_netID]/project_name/raw_reads
+```
+Now, we can run an individual command **or** a loop command on all of the files in the raw_reads folder so they are processed with kneaddata. Choose the command based on sample type (paired vs unpaired) and the amount of samples you want to process at once. If you choose to use loop command (multiple samples at once) on paired reads, you will need to use bash scripts created by CS, which is why the command looks weird - you are going to execute a script rather than type in the full command:
+**paired, one sample at a time**
+```
+kneaddata --input1 sample1_R1.fastq.gz --input2 sample1_R2.fastq.gz -db $KNEADDATA_DB --output kneaddata_out --run-trim-repetitive --threads 4
+```
+**unpaired, one sample at a time**
+```
+kneaddata --unpaired sample1.fastq.gz --reference-db $KNEADDATA_DB --output kneaddata_out --run-trim-repetitive --threads 4
+```
+**paired, loop through multiple samples**
+```
+/groups/kcooper/biobakery_env/kneaddata_loop_paired.sh
+```
+**unpaired, loop through multiple samples**
+```
+for f in *.fastq.gz
+do
+n=${f%%.fastq.gz}
+kneaddata --unpaired ${n}.fastq.gz --reference-db $KNEADDATA_DB --output kneaddata_out/${n} --run-trim-repetitive --threads 4
+done
+```
+Outputs will be created in the kneaddata_out folder within the raw_reads folder. For each sample, we want to continue the analysis on the cleaned and trimmed reads. First, we will move the kneaddata_out folder out of raw_reads into the main project directory for the next steps. Then, we will move the cleaned and trimmed reads (should end in trimmed.fastq) to a new folder:
+```
+mv kneaddata_out ../
+cd ..
+mdkir clean_reads
+cd kneaddata_out
+mv *trimmed.fastq ../clean_reads
+```
+In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1.trimmed.fastq, sample1_R2.trimmed.fastq, etc), which will be used in the next steps in the analysis.
+
+### Step 2 - assign taxonomy with MetaPHlAn
 
