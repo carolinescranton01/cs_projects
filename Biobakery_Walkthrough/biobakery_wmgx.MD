@@ -1,6 +1,6 @@
 # Biobakery walkthrough (whole-genome sequence data)
 
-This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata, mapped to different taxa using metaphlan, and a functional analysis will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial.
+This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata, mapped to different taxa using metaphlan, and a functional analysis will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
 
 ## Part 1 - setup
 
@@ -19,6 +19,7 @@ This should pull up an editor which displays the contents in the .bashrc file. S
 ```
 export PATH=$PATH:/groups/kcooper/biobakery_env/jre1.8.0_451
 export KNEADDATA_DB=/groups/kcooper/biobakery_databases/kneaddata
+export METAPHLAN_DB=/groups/kcooper/biobakery_env/lib/python3.9/site-packages/metaphlan/metaphlan_databases
 export HUMANN_NUC=/groups/kcooper/biobakery_databases/humann/chocophlan
 export HUMANN_PROT
 
@@ -47,6 +48,7 @@ Link to github page: https://github.com/biobakery/kneaddata
 Kneaddata takes raw sequencing data (can be zipped, fastq.gz) and removes adaptors, host contamination, and tandem repeats. This leaves you with a cleaner sequence to do other analysis on, reducing the chances of misinterpreting the data and making the analysis more accurate. 
 
 Right now only the human genome is downloaded for filtering contamination, but other databases can be downloaded at the provided link AND custom databases can be built if you are processing data from a non-human organism.
+Note - running trimmomatic and TRF. FastQC is not run.
 
 To begin the analysis we will move to the raw_reads folder on the xdisk with the samples in it:
 ```
@@ -56,13 +58,13 @@ Now, we can run an individual command **or** a loop command on all of the files 
 
 **paired, one sample at a time**
 ```
-kneaddata --input1 sample1_R1.fastq.gz --input2 sample1_R2.fastq.gz -db $KNEADDATA_DB --output kneaddata_out --run-trim-repetitive --threads 4
+kneaddata --input1 sample1_R1.fastq.gz --input2 sample1_R2.fastq.gz -db $KNEADDATA_DB --output kneaddata_out --threads 4
 ```
 **unpaired, one sample at a time**
 ```
-kneaddata --unpaired sample1.fastq.gz --reference-db $KNEADDATA_DB --output kneaddata_out --run-trim-repetitive --threads 4
+kneaddata --unpaired sample1.fastq.gz --reference-db $KNEADDATA_DB --output kneaddata_out --threads 4
 ```
-**paired, loop through multiple samples**
+**paired, loop through multiple samples** - note: only works on zipped samples. use gzip *.fastq to zip any fastq files
 ```
 /groups/kcooper/biobakery_env/kneaddata_loop_paired.sh
 ```
@@ -71,22 +73,41 @@ kneaddata --unpaired sample1.fastq.gz --reference-db $KNEADDATA_DB --output knea
 for f in *.fastq.gz
 do
 n=${f%%.fastq.gz}
-kneaddata --unpaired ${n}.fastq.gz --reference-db $KNEADDATA_DB --output kneaddata_out/${n} --run-trim-repetitive --threads 4
+kneaddata --unpaired ${n}.fastq.gz --reference-db $KNEADDATA_DB --output kneaddata_out/${n} --threads 4
 done
 ```
-Outputs will be created in the kneaddata_out folder within the raw_reads folder. For each sample, we want to continue the analysis on the cleaned and trimmed reads. First, we will move the kneaddata_out folder out of raw_reads into the main project directory for the next steps. Then, we will move the cleaned and trimmed reads (should end in trimmed.fastq) to a new folder:
+Outputs will be created in the kneaddata_out folder within the raw_reads folder. For each sample, we want to continue the analysis on the cleaned and trimmed reads. First, we will move the kneaddata_out folder out of raw_reads into the main project directory for the next steps. Then, we will move the cleaned and trimmed reads (should end in paired_1.fastq or paired_2.fastq for paired reads, or kneaddata.fastq for unpaired) to a new folder. Depending on whether your reads are paired on unpaired, run the commands (denoted by the comments, beginning with #)
 ```
 mv kneaddata_out ../
 cd ..
-mdkir clean_reads
-cd kneaddata_out
-mv *trimmed.fastq ../clean_reads
+
+# for single-end reads (*kneaddata.fastq)
+mkdir -p clean_reads; for f in kneaddata_out/*/*kneaddata.fastq; do mv "$f" clean_reads/; done
+
+# for paired-end reads(*paired_1.fastq and *paired_2.fastq)
+mkdir -p clean_reads; for f in kneaddata_out/*/*paired_[12].fastq; do mv "$f" clean_reads/; done
 ```
-In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1.trimmed.fastq, sample1_R2.trimmed.fastq, etc), which will be used in the next steps in the analysis.
+In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1_kneaddata_paired_1.fastq, sample1_R2_kneaddata_paired_2.fastq, etc), which will be used in the next steps in the analysis.
 
 ### Step 2 - assign taxonomy with MetaPHlAn
-Link to github: https://github.com/biobakery/metaphlan
+Link to github: https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-4
+
 MetaPHlAn assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa. To run metaphlan, use the following commands:
 ```
-mkdir met
+cd ..
+mkdir metaphlan
+# for single-end reads
+for f in clean_reads/*.fastq; do base=$(basename "$f" .fastq); metaphlan "$f" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 5 --input_type fastq -o "${base}_profiled.txt"; done
+
+# for paired-end reads
+for f1 in clean_reads/*_1.fastq; do
+  base=$(basename "$f1" _1.fastq)
+  f2="clean_reads/${base}_2.fastq"
+  if [ -f "$f2" ]; then
+    metaphlan "${f1},${f2}" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 5 --input_type fastq -o "${base}_profiled.txt"
+  else
+    echo "Warning: Paired file for $f1 not found. Skipping."
+  fi
+done
+```
 
