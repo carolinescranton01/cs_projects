@@ -53,6 +53,7 @@ To begin the analysis we will move to the raw_reads folder on the xdisk with the
 cd /xdisk/kcooper/[your_netID]/project_name/raw_reads
 ```
 Now, we can run an individual command **or** a loop command on all of the files in the raw_reads folder so they are processed with kneaddata. Choose the command based on sample type (paired vs unpaired) and the amount of samples you want to process at once. If you choose to use loop command (multiple samples at once) on paired reads, you will need to use bash scripts created by CS, which is why the command looks weird - you are going to execute a script rather than type in the full command:
+
 **paired, one sample at a time**
 ```
 kneaddata --input1 sample1_R1.fastq.gz --input2 sample1_R2.fastq.gz -db $KNEADDATA_DB --output kneaddata_out --run-trim-repetitive --threads 4
@@ -84,4 +85,8 @@ mv *trimmed.fastq ../clean_reads
 In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1.trimmed.fastq, sample1_R2.trimmed.fastq, etc), which will be used in the next steps in the analysis.
 
 ### Step 2 - assign taxonomy with MetaPHlAn
+Link to github: https://github.com/biobakery/metaphlan
+MetaPHlAn assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa. To run metaphlan, use the following commands:
+```
+mkdir met
 
