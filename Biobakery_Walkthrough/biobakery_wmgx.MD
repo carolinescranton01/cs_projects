@@ -17,11 +17,17 @@ nano ~/.bashrc
 ```
 This should pull up an editor which displays the contents in the .bashrc file. Scroll to the end of the file using the down arrow key and type in the following lines to set the variables:
 ```
-KNEADDATA_DB=/groups/kcooper/biobakery_databases/kneaddata
-HUMANN_NUC=/groups/kcooper/biobakery_databases/humann/chocophlan
-HUMANN_PROT
+export PATH=$PATH:/groups/kcooper/biobakery_env/jre1.8.0_451
+export KNEADDATA_DB=/groups/kcooper/biobakery_databases/kneaddata
+export HUMANN_NUC=/groups/kcooper/biobakery_databases/humann/chocophlan
+export HUMANN_PROT
 
 ```
+To close the editor, press *control X* and then *y* to save. Then, in the terminal, type:
+```
+source ~/.bashrc
+```
+again to activate the changes
 Now, everything should be set up to allow you to run the biobakery tools detailed in this page from your own HPC. The final step is to upload your data to the HPC's xdisk. This can be done using globus file transfer (or in other ways - the data may already be somewhere else and just needs to be moved/copied over. This step will be different for everyone/for every dataset!)
 
 For consistency, the file structure in this tutorial will be outlined. On your folder on the xdisk, create a folder titled with the project name (example: project_name) and use mv, cp, or globus to move your raw sequence data (fastq.gz files, often will be paired - sample1_R1.fastq.gz and sample1_R2.fastq.gz are zipped files containing the forward and reverse reads for sample 1) into the raw_reads folder. 
@@ -38,5 +44,7 @@ Now everything should be set up and you can run your analysis.
 ### Step 1 - data cleanup with kneaddata
 Link to github page: https://github.com/biobakery/kneaddata
 
+Kneaddata takes raw sequencing data (can be zipped, fastq.gz) and removes adaptors, host contamination, and tandem repeats. This leaves you with a cleaner sequence to do other analysis on, reducing the chances of misinterpreting the data and making the analysis more accurate. 
 
+To run kneaddata you need a certain version of java (another software, but it is different from the usual 'conda' packages we install)
 
