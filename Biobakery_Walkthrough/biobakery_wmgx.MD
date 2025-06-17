@@ -154,6 +154,6 @@ done
 ```
 
 
-
+NOTE 6-17-25 humann not running - trying to run metaphlan with --bowtie2out flag which is depreciated (need to fix versions)
 
 
