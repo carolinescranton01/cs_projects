@@ -155,5 +155,6 @@ done
 
 
 NOTE 6-17-25 humann not running - trying to run metaphlan with --bowtie2out flag which is depreciated (need to fix versions)
+NOTE 6-18-25 - got humann to run metaphlan simultaneously, BUT uses old versions (humann 3.9 and metaphlan 3.0 with mpa_v31_CHOCOPhlAn_201901.tar database) --> dont need to run metaphlan step at this point if just redoing it w humann. 
 
 
