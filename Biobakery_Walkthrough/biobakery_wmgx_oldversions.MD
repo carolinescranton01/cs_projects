@@ -1,6 +1,8 @@
-# Biobakery walkthrough (whole-genome sequence data)
+# Biobakery walkthrough (whole-genome sequence data, humann v3.9 and metaphlan v 3.0)
 
-This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata, mapped to different taxa using metaphlan, and a functional analysis will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
+This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata and a functional analysis (including mapping reads to different taxa via metaphlan) will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
+
+This tutorial uses an older version of humann and metaphlan (older versions were used due to incompatibility issues with the newest versions, humann v4 and metaphlan v4) which runs the two steps simultaneously. To use the most updated versions, see biobakery_wmgx_newversions.md (6-20-25 note - this doc has not been created yet! and versions/databases have not been installed!)
 
 ## Part 1 - setup
 
@@ -21,7 +23,6 @@ export PATH=$PATH:/groups/kcooper/biobakery_env/jre1.8.0_451
 export KNEADDATA_DB=/groups/kcooper/biobakery_databases/kneaddata
 export METAPHLAN_DB=/groups/kcooper/biobakery_env/lib/python3.9/site-packages/metaphlan/metaphlan_databases
 export HUMANN_NUC=/groups/kcooper/biobakery_databases/humann/chocophlan
-export HUMANN_PROT
 
 ```
 To close the editor, press *control X* and then *y* to save. Then, in the terminal, type:
@@ -89,7 +90,7 @@ mkdir -p clean_reads; for f in kneaddata_out/*/*paired_[12].fastq; do mv "$f" cl
 ```
 In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1_kneaddata_paired_1.fastq, sample1_R2_kneaddata_paired_2.fastq, etc), which will be used in the next steps in the analysis.
 
-### Step 2 - assign taxonomy with MetaPHlAn
+### Step 2 - assign function and taxonomy with MetaPHlAn and HUMAnN
 Link to github: https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-4
 
 MetaPHlAn assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa. To run metaphlan, use the following commands:
