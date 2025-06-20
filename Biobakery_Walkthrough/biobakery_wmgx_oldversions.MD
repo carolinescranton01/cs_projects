@@ -1,4 +1,4 @@
-# Biobakery walkthrough (whole-genome sequence data, humann v3.9 and metaphlan v 3.0)
+# Biobakery walkthrough (6-20-25 IN PROGRESS) (whole-genome sequence data, humann v3.9 and metaphlan v 3.0)
 
 This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata and a functional analysis (including mapping reads to different taxa via metaphlan) will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
 
@@ -91,51 +91,18 @@ mkdir -p clean_reads; for f in kneaddata_out/*/*paired_[12].fastq; do mv "$f" cl
 In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1_kneaddata_paired_1.fastq, sample1_R2_kneaddata_paired_2.fastq, etc), which will be used in the next steps in the analysis.
 
 ### Step 2 - assign function and taxonomy with MetaPHlAn and HUMAnN
-Link to github: https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-4
+Link to metaphlan3 github: https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-3
+Link to humann github: https://github.com/biobakery/humann
 
-MetaPHlAn assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa. To run metaphlan, use the following commands:
-```
-cd ..
-mkdir metaphlan
-
-# for single-end reads
-for f in clean_reads/*.fastq; do base=$(basename "$f" .fastq); metaphlan "$f" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 5 --input_type fastq -o "${base}_profiled.tsv"; done
-
-# for paired-end reads
-for f1 in clean_reads/*_1.fastq; do
-  base=$(basename "$f1" _1.fastq)
-  f2="clean_reads/${base}_2.fastq"
-  if [ -f "$f2" ]; then
-    metaphlan "${f1},${f2}" --db_dir $METAPHLAN_DB --mapout "${base}.bowtie2.bz2" --nproc 8 --input_type fastq -o "${base}_profiled.tsv" -t rel_ab_w_read_stats
-  else
-    echo "Warning: Paired file for $f1 not found. Skipping."
-  fi
-done
-```
-This command should output 2 files per sample into the main directory (whether they were paired-end or not) - one ending in .bz2, which contains information on how the reads were aligned, and one ending in .tsv, which contains the alignment information in a readable format (tab deliminated).
-
-Finally, for future analysis, we want to merge our outputs into one large table using a pre-installed script.
-NOTE - 6/17/25 - some issue w the .tsv files and merge script. it does not work due to formatting or metaphlan version (working on it!)
-```
-mkdir metaphlan
-mv *.tsv metaphlan
-mv *.bz2 metaphlan
-cd metaphlan
-merge_metaphlan_tables.py *.tsv > merged_abundance_table.tsv
-```
-
-### Step 3 - assigning functions to genes usin HUMAnN
-Link to github: https://github.com/biobakery/humann
-
-HUMAnN looks at the nucleotide sequences and translates them into potential proteins to identfy the functional capabilities of the bacteria within the sample. It uses 2 databases (chocophlan for a nucleotide search and uniref90 for a translated search). Either of the searches can be bypassed to save time, but running both generates a bettter picture of the capabilities of the microbes in the sample. Humann does not work as well on paired-end reads, so for paired-end reads we will concatonate (join) the forward R1 and reverse R2 fastq files.
+HUMAnN looks at the nucleotide sequences and translates them into potential proteins to identfy the functional capabilities of the bacteria within the sample. It uses 2 databases (chocophlan for a nucleotide search and uniref90 for a translated search). Either of the searches can be bypassed to save time, but running both generates a bettter picture of the capabilities of the microbes in the sample. Humann does not work as well on paired-end reads, so for paired-end reads we will concatonate (join) the forward R1 and reverse R2 fastq files. MetaPHlAn assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa. Metaphlan is run as a step in the humann command, so we will just run humann on our concatenated samples for this step. 
 
 NOTE - as of 6/17/25, only the chocophlan DB is installed (not enough space on drive for uniref90, will download when necessary). Humann must be run with --bypass-translated-search flag in order to work. 
 
-First we will copy and concatenate the reads in a new folder:
-
+First, concatenate the reads in a new folder called humann:
 ```
 cd ..
 mkdir humann
+
 cp clean_reads/*.fastq humann
 cd humann
 for f in *.fastq; do if [[ $f == *_1.fastq ]]; then n=${f%%_1.fastq}; cat ${f} ${n}_2.fastq > ${n}_merged.fastq; fi; done
@@ -143,19 +110,18 @@ rm *_1.fastq
 rm *_2.fastq
 ```
 
-Now we should only have the merged read samples (samplename_merged.fastq). To run Humann on them use the following:
-
+Next, run humann on the concatenated reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it). If you would like to specify more metaphlan options, use the --metaphlan-options='PUT_FLAGS_AND_INFO_HERE' flag/format (ie. --metaphlan-options='-t rel_ab', or another flag can be used (use **metaphlan --help** to see possible flags):
 ```
 for f in *.fastq; do
   base=${f%.fastq}       
-  base=${base%_merged}  
-  tsv="../metaphlan/${base}_profiled.tsv"
-  humann --input "$f" --output humann_out --taxonomic-profile "$tsv" --bypass-translated-search
+  base=${base%_merged} 
+  humann --input "$f" --output humann_out  --bypass-translated-search --metaphlan-options='-t rel_ab' --threads 8
 done
 ```
+This command runs humann and metaphlan using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and generates metaphlan outputs with relative abundance along with humann outputs. The last step is merging tables to use in future stats/visualation analysis:
+
+``
+cd humann_out
 
 
-NOTE 6-17-25 humann not running - trying to run metaphlan with --bowtie2out flag which is depreciated (need to fix versions)
-NOTE 6-18-25 - got humann to run metaphlan simultaneously, BUT uses old versions (humann 3.9 and metaphlan 3.0 with mpa_v31_CHOCOPhlAn_201901.tar database) --> dont need to run metaphlan step at this point if just redoing it w humann. 
-
-
+After this, you can proceed to the visualzation and stats workflows, detailed in the biobakery_vis.md and biobakery_stats.md documents. You will need the merged data tables from above as well as a metadata file (this file has sample IDs which match those on the tables, and other non-sequence related information in it, such as where the sample was collected from, what date, the conditions of the host (ie sick or not sick), etc. Your metadata file should have all of the information you would want to compare your samples on, so if you were looking at soil from different fields before and after a rain storm, for each sample you would need the field number, the date, and the weather from when that sample was taken in order to make that comparison). 
