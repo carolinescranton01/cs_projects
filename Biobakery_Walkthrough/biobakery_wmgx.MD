@@ -1,9 +1,9 @@
-# Biobakery walkthrough (6-20-25 IN PROGRESS) (whole-genome sequence data, humann v3.9 and metaphlan v 3.0)
+# Biobakery walkthrough (whole genome sequencing, 
 
-6-23-25 - need to rewrite - kneaddata good, updated metaphlan to 4.2.2 with Jun23 CHOCOPhlAn DB (202307) and humann 4. humann4 is only compatable with the old metaphlan DB, compatibility has not been updated for newer DB to use the two softwares together
+6-23-25 - need to rewrite - kneaddata good, updated metaphlan to 4.2.2 with Oct22 CHOCOPhlAn DB (202403) and humann 4. humann4 is only compatable with the old metaphlan DB, compatibility has not been updated for newer DB to use the two softwares together
 
 Metaphlan command
-metaphlan Maricopa-R_R1_kneaddata_paired_merged.fastq --index mpa_vJun23_CHOCOPhlAnSGB_202307 --mapout Maricopa-R.bowtie2.bz2 --nproc 8 --input_type fastq -o Maricopa-R_profiled.tsv --verbose -t real_ab_w_read_stats
+metaphlan Maricopa-R_R1_kneaddata_paired_merged.fastq --index mpa_vJun23_CHOCOPhlAnSGB_202403 --mapout Maricopa-R.bowtie2.bz2 --nproc 8 --input_type fastq -o Maricopa-R_profiled.tsv --verbose -t real_ab_w_read_stats
 
 Humann command
 humann --input Maricopa-R_R1_kneaddata_paired_merged.fastq --output humann_out  --bypass-translated-search --taxonomic-profile /xdisk/kcooper/carolinescranton/biobakery_test/metaphlan/Maricopa-R_profiled.tsv --threads 8
