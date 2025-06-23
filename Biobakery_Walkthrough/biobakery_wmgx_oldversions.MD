@@ -1,5 +1,14 @@
 # Biobakery walkthrough (6-20-25 IN PROGRESS) (whole-genome sequence data, humann v3.9 and metaphlan v 3.0)
 
+6-23-25 - need to rewrite - kneaddata good, updated metaphlan to 4.2.2 with Jun23 CHOCOPhlAn DB (202307) and humann 4. humann4 is only compatable with the old metaphlan DB, compatibility has not been updated for newer DB to use the two softwares together
+
+Metaphlan command
+metaphlan Maricopa-R_R1_kneaddata_paired_merged.fastq --index mpa_vJun23_CHOCOPhlAnSGB_202307 --mapout Maricopa-R.bowtie2.bz2 --nproc 8 --input_type fastq -o Maricopa-R_profiled.tsv --verbose -t real_ab_w_read_stats
+
+Humann command
+humann --input Maricopa-R_R1_kneaddata_paired_merged.fastq --output humann_out  --bypass-translated-search --taxonomic-profile /xdisk/kcooper/carolinescranton/biobakery_test/metaphlan/Maricopa-R_profiled.tsv --threads 8
+
+
 This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata and a functional analysis (including mapping reads to different taxa via metaphlan) will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
 
 This tutorial uses an older version of humann and metaphlan (older versions were used due to incompatibility issues with the newest versions, humann v4 and metaphlan v4) which runs the two steps simultaneously. To use the most updated versions, see biobakery_wmgx_newversions.md (6-20-25 note - this doc has not been created yet! and versions/databases have not been installed!)
