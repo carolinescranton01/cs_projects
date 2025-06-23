@@ -1,17 +1,10 @@
-# Biobakery walkthrough (whole genome sequencing, 
+# Biobakery walkthrough (whole genome sequencing, using kneaddata + metaphlan + humann)
 
 6-23-25 - need to rewrite - kneaddata good, updated metaphlan to 4.2.2 with Oct22 CHOCOPhlAn DB (202403) and humann 4. humann4 is only compatable with the old metaphlan DB, compatibility has not been updated for newer DB to use the two softwares together
 
-Metaphlan command
-metaphlan Maricopa-R_R1_kneaddata_paired_merged.fastq --index mpa_vJun23_CHOCOPhlAnSGB_202403 --mapout Maricopa-R.bowtie2.bz2 --nproc 8 --input_type fastq -o Maricopa-R_profiled.tsv --verbose -t real_ab_w_read_stats
+This walk-through explains how to use the biobakery suite of tools to process whole genome short-read sequence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata and a taxonomic analysis (using metaphlan4) and functional analysis (using humann4). All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
 
-Humann command
-humann --input Maricopa-R_R1_kneaddata_paired_merged.fastq --output humann_out  --bypass-translated-search --taxonomic-profile /xdisk/kcooper/carolinescranton/biobakery_test/metaphlan/Maricopa-R_profiled.tsv --threads 8
-
-
-This walk-through explains how to use the biobakery suite of tools to process whole genome short-read seuqence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata and a functional analysis (including mapping reads to different taxa via metaphlan) will be done using humann. All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
-
-This tutorial uses an older version of humann and metaphlan (older versions were used due to incompatibility issues with the newest versions, humann v4 and metaphlan v4) which runs the two steps simultaneously. To use the most updated versions, see biobakery_wmgx_newversions.md (6-20-25 note - this doc has not been created yet! and versions/databases have not been installed!)
+NOTE: This tutorial uses the most updated versions of humann (4.0.0.alpha.1) and metaphlan (4.2.2). However, the database used in metaphlan is slightly older (mpa_vOct22_CHOCOPhlAnSGB_202403). This is because humann has not been updated to work with metaphlan outputs from the most current database (updated in Jan 2025). 
 
 ## Part 1 - setup
 
@@ -22,7 +15,7 @@ source .bashrc
 conda activate /groups/kcooper/biobakery_env
 ```
 You should now see (/groups/kcooper/biobakery_env) before your netID at the left-hand side of the terminal. Now that you have acvtivated the environment you can run commands from the programs which are installed within it. 
-Next, we need to set environmental variables to allow your computer to find the databases which it needs to run each of the commands we use later on. We need to create variables for kneaddata, humann, and metaphlan. The databases are installed in /groups/kcooper/biobakery_databases. We want to put the variables in our .bashrc file, which is a file that gives the computer 'directions' allowing it to understand the commands we type in. To access this, type the following:
+Next, we need to set environmental variables to allow your computer to find the databases which it needs to run each of the commands we use later on. We need to create a variable for kneaddata as well as a different piece of software (jre - java runtime environment - allows for kneaddata to run). The databases are installed in /groups/kcooper/biobakery_databases. We want to put the variables in our .bashrc file, which is a file that gives the computer 'directions' allowing it to understand the commands we type in. To access this, type the following:
 ```
 nano ~/.bashrc
 ```
@@ -30,16 +23,13 @@ This should pull up an editor which displays the contents in the .bashrc file. S
 ```
 export PATH=$PATH:/groups/kcooper/biobakery_env/jre1.8.0_451
 export KNEADDATA_DB=/groups/kcooper/biobakery_databases/kneaddata
-export METAPHLAN_DB=/groups/kcooper/biobakery_env/lib/python3.9/site-packages/metaphlan/metaphlan_databases
-export HUMANN_NUC=/groups/kcooper/biobakery_databases/humann/chocophlan
-
 ```
 To close the editor, press *control X* and then *y* to save. Then, in the terminal, type:
 ```
 source ~/.bashrc
 ```
 again to activate the changes
-Now, everything should be set up to allow you to run the biobakery tools detailed in this page from your own HPC. The final step is to upload your data to the HPC's xdisk. This can be done using globus file transfer (or in other ways - the data may already be somewhere else and just needs to be moved/copied over. This step will be different for everyone/for every dataset!)
+Now, everything should be set up to allow you to run the biobakery tools detailed in this page from your own HPC account. The final step is to upload your data to the HPC's xdisk. This can be done using globus file transfer (or in other ways - the data may already be somewhere else and just needs to be moved/copied over. This step will be different for everyone/for every dataset!)
 
 For consistency, the file structure in this tutorial will be outlined. On your folder on the xdisk, create a folder titled with the project name (example: project_name) and use mv, cp, or globus to move your raw sequence data (fastq.gz files, often will be paired - sample1_R1.fastq.gz and sample1_R2.fastq.gz are zipped files containing the forward and reverse reads for sample 1) into the raw_reads folder. 
 ```
@@ -99,15 +89,44 @@ mkdir -p clean_reads; for f in kneaddata_out/*/*paired_[12].fastq; do mv "$f" cl
 ```
 In the clean_reads folder we now should have all of our kneaddata-processed reads, with specific names (sample1_R1_kneaddata_paired_1.fastq, sample1_R2_kneaddata_paired_2.fastq, etc), which will be used in the next steps in the analysis.
 
-### Step 2 - assign function and taxonomy with MetaPHlAn and HUMAnN
-Link to metaphlan3 github: https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-3
-Link to humann github: https://github.com/biobakery/humann
+### Step 2 - assign taxonomy with MetaPhlAn4
+Link to metaphlan4 github: https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-4
+
+MetaPhlAn4 assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa in a database. To run metaphlan, use the following commands to run the program and move the outputs into a new folder:
+
+```
+cd ..
+mkdir metaphlan
+
+# for single-end reads - testing 6/23/25
+for f in clean_reads/*.fastq; 
+do 
+base=$(basename "$f" .fastq); 
+metaphlan "$f" --mapout "${base}.bowtie2.bz2" --nproc 8 --input_type fastq -o "${base}_profiled.tsv" --index mpa_vOct22_CHOCOPhlAnSGB_202403 -t rel_ab_w_read_stats; 
+done
+
+# for paired-end reads
+for f1 in clean_reads/*_1.fastq; do
+  base=$(basename "$f1" _1.fastq)
+  f2="clean_reads/${base}_2.fastq"
+  if [ -f "$f2" ]; then
+    metaphlan "${f1},${f2}" --mapout "${base}.bowtie2.bz2" --nproc 8 --input_type fastq -o "${base}_profiled.tsv" --index mpa_vOct22_CHOCOPhlAnSGB_202403 -t rel_ab_w_read_stats
+  else
+    echo "Warning: Paired file for $f1 not found. Skipping."
+  fi
+done
+
+mv *.tsv /metaphlan
+mv *.bz2 /metaphlan
+```
+
+### Step 3 - assign functions with HUMAnN 4
 
 HUMAnN looks at the nucleotide sequences and translates them into potential proteins to identfy the functional capabilities of the bacteria within the sample. It uses 2 databases (chocophlan for a nucleotide search and uniref90 for a translated search). Either of the searches can be bypassed to save time, but running both generates a bettter picture of the capabilities of the microbes in the sample. Humann does not work as well on paired-end reads, so for paired-end reads we will concatonate (join) the forward R1 and reverse R2 fastq files. MetaPHlAn assigns taxonomy to the samples by identifying specific genes within the samples which match to known taxa. Metaphlan is run as a step in the humann command, so we will just run humann on our concatenated samples for this step. 
 
 NOTE - as of 6/17/25, only the chocophlan DB is installed (not enough space on drive for uniref90, will download when necessary). Humann must be run with --bypass-translated-search flag in order to work. 
 
-First, concatenate the reads in a new folder called humann:
+First, IF READS ARE PAIRED, concatenate the reads in a new folder called humann:
 ```
 cd ..
 mkdir humann
@@ -119,15 +138,36 @@ rm *_1.fastq
 rm *_2.fastq
 ```
 
-Next, run humann on the concatenated reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it). If you would like to specify more metaphlan options, use the --metaphlan-options='PUT_FLAGS_AND_INFO_HERE' flag/format (ie. --metaphlan-options='-t rel_ab', or another flag can be used (use **metaphlan --help** to see possible flags):
+If reads are NOT paired, simply copy the reads into the humann folder:
+```
+cd ..
+mkdir humann
+cp clean_reads/*.fastq humann
+```
+
+Next, run humann on the reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it) and with the --taxonomic-profile flag (with /PATH/TO/METAPHLAN/FOLDER where *_profiled.tsv files are) to use the metaphlan outputs in the previous step. Due to the database/humann/metaphlan version incompatibility, we are bypassing the metaphlan run in humann and doing it separately - when compatibility issues are fixed you can actually skip the metaphlan step as humann will automatically run metaphlan when the --taxonomic-profile flag is not specified. Make sure to replace /PATH/TO/TAXONOMIC/PROFILE with the correct path to the metaphlan outputs! 
+
+6-23-25 - having issue where custom chocophlanDB is empty :/
+
+Humann command
+humann --input Maricopa-R_R1_kneaddata_paired_merged.fastq --output humann_out  --bypass-translated-search --taxonomic-profile /xdisk/kcooper/carolinescranton/biobakery_test/metaphlan/Maricopa-R_profiled.tsv --threads 8
+For merged reads:
+
 ```
 for f in *.fastq; do
-  base=${f%.fastq}       
-  base=${base%_merged} 
-  humann --input "$f" --output humann_out  --bypass-translated-search --metaphlan-options='-t rel_ab' --threads 8
+  base=${f%%.fastq}       
+  humann --input "${base}_merged.fastq" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"${base}_profiled.tsv" --threads 8
 done
 ```
-This command runs humann and metaphlan using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and generates metaphlan outputs with relative abundance along with humann outputs. The last step is merging tables to use in future stats/visualation analysis:
+
+For unmerged (unpaired) reads:
+```
+for f in *.fastq; do
+  base=${f%%.fastq}       
+  humann --input "$f" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"$f_profiled.tsv" --threads 8
+done
+```
+This command runs humann using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and uses the previously-generated metaphlan outputs. The last step is merging tables to use in future stats/visualation analysis:
 
 ``
 cd humann_out
