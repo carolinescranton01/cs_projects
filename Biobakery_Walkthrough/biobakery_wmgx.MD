@@ -1,7 +1,5 @@
 # Biobakery walkthrough (whole genome sequencing, using kneaddata + metaphlan + humann)
 
-6-23-25 - need to rewrite - kneaddata good, updated metaphlan to 4.2.2 with Oct22 CHOCOPhlAn DB (202403) and humann 4. humann4 is only compatable with the old metaphlan DB, compatibility has not been updated for newer DB to use the two softwares together
-
 This walk-through explains how to use the biobakery suite of tools to process whole genome short-read sequence data (ie Illumina paired-read data). Data will be cleaned and trimmed to increase quality and remove human contamination (option for other host contamination, ie cats, lettuce, etc available) using kneaddata and a taxonomic analysis (using metaphlan4) and functional analysis (using humann4). All databases and software packages are previously installed by CS in the groups folder, but you will need to set environmental variables to access the databases the first time you use this tutorial. NOTE - only the basic functions of each program are used in this walkthrough. For each of the three major programs (kneaddata, metaphlan, and humann), there are many more options available to increase the depth of analysis or change the outputs to be compatible with other forms of analysis/export into R. See the github pages or type [program] --help for more information on what each program can do. Additionally, see https://github.com/biobakery/biobakery/wiki for an overview of all of the connected biobakery tools which can be used in conjunction with kneaddata, humann, and metaphlan.
 
 NOTE: This tutorial uses the most updated versions of humann (4.0.0.alpha.1) and metaphlan (4.2.2). However, the database used in metaphlan is slightly older (mpa_vOct22_CHOCOPhlAnSGB_202403). This is because humann has not been updated to work with metaphlan outputs from the most current database (updated in Jan 2025). 
@@ -145,18 +143,14 @@ mkdir humann
 cp clean_reads/*.fastq humann
 ```
 
-Next, run humann on the reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it) and with the --taxonomic-profile flag (with /PATH/TO/METAPHLAN/FOLDER where *_profiled.tsv files are) to use the metaphlan outputs in the previous step. Due to the database/humann/metaphlan version incompatibility, we are bypassing the metaphlan run in humann and doing it separately - when compatibility issues are fixed you can actually skip the metaphlan step as humann will automatically run metaphlan when the --taxonomic-profile flag is not specified. Make sure to replace /PATH/TO/TAXONOMIC/PROFILE with the correct path to the metaphlan outputs! 
+Next, run humann on the reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it) and with the --taxonomic-profile flag (with /PATH/TO/METAPHLAN/FOLDER where *_profiled.tsv files are) to use the metaphlan outputs in the previous step. Due to the database/humann/metaphlan version incompatibility, we are bypassing the metaphlan run in humann and doing it separately - when compatibility issues are fixed you can actually skip the metaphlan step as humann will automatically run metaphlan when the --taxonomic-profile flag is not specified. Make sure to replace /PATH/TO/TAXONOMIC/PROFILE with the correct path to the metaphlan outputs! Also, the --output-format flag allows you to create .biom files, which are analyzed using the phyloseq package in R. Without this flag outputs will be in the .tsv format which is easier to view without using R.
 
-6-23-25 - having issue where custom chocophlanDB is empty :/
-
-Humann command
-humann --input Maricopa-R_R1_kneaddata_paired_merged.fastq --output humann_out  --bypass-translated-search --taxonomic-profile /xdisk/kcooper/carolinescranton/biobakery_test/metaphlan/Maricopa-R_profiled.tsv --threads 8
 For merged reads:
 
 ```
 for f in *.fastq; do
   base=${f%%.fastq}       
-  humann --input "${base}_merged.fastq" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"${base}_profiled.tsv" --threads 8
+  humann --input "${base}_merged.fastq" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"${base}_profiled.tsv" --threads 8 --output-format biom
 done
 ```
 
@@ -164,13 +158,16 @@ For unmerged (unpaired) reads:
 ```
 for f in *.fastq; do
   base=${f%%.fastq}       
-  humann --input "$f" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"$f_profiled.tsv" --threads 8
+  humann --input "$f" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"$f_profiled.tsv" --threads 8 --output-format biom
 done
 ```
-This command runs humann using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and uses the previously-generated metaphlan outputs. The last step is merging tables to use in future stats/visualation analysis:
 
-``
-cd humann_out
+This command runs humann using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and uses the previously-generated metaphlan outputs. The last step is merging tables to use in future stats/visualation analysis. This looks in the output file for all biom files and merges them into one which can be exported in analyzed in R:
+
+```
+humann_join_tables --input humann_out --output output.biom --search-subdirectories
+done
+```
 
 
-After this, you can proceed to the visualzation and stats workflows, detailed in the biobakery_vis.md and biobakery_stats.md documents. You will need the merged data tables from above as well as a metadata file (this file has sample IDs which match those on the tables, and other non-sequence related information in it, such as where the sample was collected from, what date, the conditions of the host (ie sick or not sick), etc. Your metadata file should have all of the information you would want to compare your samples on, so if you were looking at soil from different fields before and after a rain storm, for each sample you would need the field number, the date, and the weather from when that sample was taken in order to make that comparison). 
+After this, you can proceed to the visualzation and stats workflows, detailed in the biobakery_vis.md and biobakery_stats.md documents (7-3-25 - NOT CREATED YET). You will need the merged data tables from above as well as a metadata file (this file has sample IDs which match those on the tables, and other non-sequence related information in it, such as where the sample was collected from, what date, the conditions of the host (ie sick or not sick), etc. Your metadata file should have all of the information you would want to compare your samples on, so if you were looking at soil from different fields before and after a rain storm, for each sample you would need the field number, the date, and the weather from when that sample was taken in order to make that comparison). 
