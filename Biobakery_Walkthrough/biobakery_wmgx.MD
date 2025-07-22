@@ -143,14 +143,14 @@ mkdir humann
 cp clean_reads/*.fastq humann
 ```
 
-Next, run humann on the reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it) and with the --taxonomic-profile flag (with /PATH/TO/METAPHLAN/FOLDER where *_profiled.tsv files are) to use the metaphlan outputs in the previous step. Due to the database/humann/metaphlan version incompatibility, we are bypassing the metaphlan run in humann and doing it separately - when compatibility issues are fixed you can actually skip the metaphlan step as humann will automatically run metaphlan when the --taxonomic-profile flag is not specified. Make sure to replace /PATH/TO/TAXONOMIC/PROFILE with the correct path to the metaphlan outputs! Also, the --output-format flag allows you to create .biom files, which are analyzed using the phyloseq package in R. Without this flag outputs will be in the .tsv format which is easier to view without using R.
+Next, run humann on the reads with the bypass-translated-search flag to skip the uniref90 search (DB is not downloaded - contact CS if you need it) and with the --taxonomic-profile flag (with /PATH/TO/METAPHLAN/FOLDER where *_profiled.tsv files are) to use the metaphlan outputs in the previous step. Due to the database/humann/metaphlan version incompatibility, we are bypassing the metaphlan run in humann and doing it separately - when compatibility issues are fixed you can actually skip the metaphlan step as humann will automatically run metaphlan when the --taxonomic-profile flag is not specified. Make sure to replace /PATH/TO/TAXONOMIC/PROFILE with the correct path to the metaphlan outputs! 
 
 For merged reads:
 
 ```
 for f in *.fastq; do
   base=${f%%.fastq}       
-  humann --input "${base}_merged.fastq" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"${base}_profiled.tsv" --threads 8 --output-format biom
+  humann --input "${base}_merged.fastq" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"${base}_profiled.tsv" --threads 8 --output-format tsv
 done
 ```
 
@@ -158,16 +158,16 @@ For unmerged (unpaired) reads:
 ```
 for f in *.fastq; do
   base=${f%%.fastq}       
-  humann --input "$f" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"$f_profiled.tsv" --threads 8 --output-format biom
+  humann --input "$f" --output humann_out  --bypass-translated-search --taxonomic-profile /PATH/TO/METAPHLAN/OUTPUTS/"$f_profiled.tsv" --threads 8 --output-format tsv
 done
 ```
 
-This command runs humann using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and uses the previously-generated metaphlan outputs. The last step is merging tables to use in future stats/visualation analysis. This looks in the output file for all biom files and merges them into one which can be exported in analyzed in R:
+This command runs humann using 8 threads (cores/a measure of computing power or resources), bypassing the translated (uniref) search, and uses the previously-generated metaphlan outputs. The last step is merging tables to use in future stats/visualation analysis. This looks in the output file for all tsv files and merges them into one which can be exported in analyzed in R:
 
 ```
-humann_join_tables --input humann_out --output output.biom --search-subdirectories
+humann_join_tables --input humann_out --output output.tsv --search-subdirectories
 done
 ```
 
 
-After this, you can proceed to the visualzation and stats workflows, detailed in the biobakery_vis.md and biobakery_stats.md documents (7-3-25 - NOT CREATED YET). You will need the merged data tables from above as well as a metadata file (this file has sample IDs which match those on the tables, and other non-sequence related information in it, such as where the sample was collected from, what date, the conditions of the host (ie sick or not sick), etc. Your metadata file should have all of the information you would want to compare your samples on, so if you were looking at soil from different fields before and after a rain storm, for each sample you would need the field number, the date, and the weather from when that sample was taken in order to make that comparison). 
+After this, you can proceed to the visualzation and stats analysis on your data. You will need the merged data tables from above as well as a metadata file (this file has sample IDs which match those on the tables, and other non-sequence related information in it, such as where the sample was collected from, what date, the conditions of the host (ie sick or not sick), etc. Your metadata file should have all of the information you would want to compare your samples on, so if you were looking at soil from different fields before and after a rain storm, for each sample you would need the field number, the date, and the weather from when that sample was taken in order to make that comparison). 
