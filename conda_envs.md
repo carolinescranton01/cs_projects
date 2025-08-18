@@ -80,8 +80,9 @@ conda config --add channels bioconda biobakery
 ```
 
 2. Create environments + install packages
-a) assemblers
 
+
+a) assemblers
 ```
 conda create -n assemblers
 conda activate assemblers
@@ -93,9 +94,17 @@ conda deactivate
 ```
 
 b) checkM2
+
+
 c) raxml
+
+
 d) cleaning
+
+
 e) metagenomics
+
+
 
 Access to biobakery env
 
