@@ -48,10 +48,12 @@ a) assemblers
 
 ```
 conda create -n assemblers
+conda activate assemblers
 conda install spades -c bioconda
 conda install flye -c bioconda
 conda install canu -c bioconda
 conda install haslr -c bioconda
+conda deactivate
 ```
 
 b) checkM2
