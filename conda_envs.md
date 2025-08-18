@@ -24,15 +24,51 @@ conda create -n ENV_NAME
 A specific version of python can be specified in this by adding python=## (with the number corresponding to the version).
 
 
-
 ## Installing packages
+
+To install packages, you need to activate the environment and then install them. There are multiple arguments which can be specified in this command.
+
+```
+conda activate ENV_NAME
+conda install PACKAGE_NAME
+```
+
+To specify the version of the package, write PACKAGE_NAME=## (where ## corresponds to the version). To specify the channel to use to install the package, use the '-c' flag.
+
+```
+conda install PACKAGE_NAME=3.1 -c biobakery
+```
+
+Instructions on what package version or channel to use are often found in the documentation (github page) for the specific package. 
+
 
 ## Managing conda environments
 
+List all conda environments you have created and their paths
+```
+conda list env
+```
 
-Add necessary channels (change CHANNEL_NAME to correct name)
+Activate and deactivate environments
+```
+conda activate ENV_NAME
+conda deactivate ENV_NAME
+```
+
+List all packages installed within an environment (includes dependencies - this will output way more than just the few you did 'conda install' for)
+```
+conda activate ENV_NAME
+conda list
+```
+
+Add new channels (change CHANNEL_NAME to correct name)
 ```
 conda config --add channels CHANNEL_NAME
+```
+
+Delete a conda environment (deactivate the environment first) - If you want to delete ALL packages associated with that enviroment (other environments will not be affected), add the flag --all
+```
+conda env remove -n ENV_NAME
 ```
 
 ## Cooper lab conda environments and programs - installation and access
