@@ -94,23 +94,58 @@ conda deactivate
 ```
 
 b) checkM2
-
+```
+conda create -n checkM2
+conda activate checkM2
+conda install checkm2 -c bioconda
+conda deactivate
+```
 
 c) raxml
-
+```
+conda create -n raxml
+conda activate raxml
+conda install raxml -c bioconda
+conda install modeltest-ng -c bioconda
+conda deactivate
+```
 
 d) cleaning
-
+```
+conda create -n cleaning
+conda activate cleaning
+conda install quast -c bioconda
+conda install trimmomatic -c bioconda
+conda install fastp -c bioconda
+conda deactivate
+```
 
 e) metagenomics
-
-
+```
+conda create -n metagenomics
+conda activate metagenomics
+conda install metabat2 -c bioconda
+conda install maxbin2 -c bioconda
+conda install concoct -c bioconda
+conda install kraken2 -c bioconda
+conda install kraken-biom -c bioconda
+conda deactivate
+```
 
 Access to biobakery env
+```
+conda activate /groups/kcooper/biobakery_env
+```
 
 Access to checkM2 env (if install fails)
+```
+conda activate /groups/kcooper/checkm2_env
+```
 
-Access to metagenomicd env (if install fails)
+Access to metagenomics env (if install fails)
+```
+conda activate /groups/kcooper/metagenomics_env
+```
 
 
 
