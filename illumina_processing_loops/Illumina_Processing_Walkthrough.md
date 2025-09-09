@@ -110,7 +110,7 @@ for f in *.fastq; do if [[ $f == *R1*.fastq ]]; then n=${f%%R1*.fastq}; cat ${f}
 ```
 Remove the non-merged reads from this folder
 ```
-rm -r clean.fastq
+rm -r *clean.fastq
 ```
 Run kraken2 on the reads. Most analysis will use the MY_KRAKEN2_DATABASE database, which is significantly smaller than the Kraken_Special_DB (contains all known genomes and non-redundant sequences, whereas MY_KRAKEN2_DATABASE does not have non-redundant sequences). Only use Kraken_Special_DB if you are on the high-memory node of the HPC and have a lot of time, and were specifically instructed to do so, as it will not succeed. This generates two text files - a report.txt and an output.txt. There are not any instructions on what to do with those in this tutorial, but they are used for analysis, so contact carolinescranton@arizona.edu if you need information on that!
 ```
