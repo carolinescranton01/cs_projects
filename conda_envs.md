@@ -52,7 +52,7 @@ conda env list
 Activate and deactivate environments
 ```
 conda activate ENV_NAME
-conda deactivate ENV_NAME
+conda deactivate
 ```
 
 List all packages installed within an environment (includes dependencies - this will output way more than just the few you did 'conda install' for)
@@ -61,12 +61,17 @@ conda activate ENV_NAME
 conda list
 ```
 
+List channels which are installed
+```
+conda config --show channels
+```
+
 Add new channels (change CHANNEL_NAME to correct name)
 ```
 conda config --add channels CHANNEL_NAME
 ```
 
-Delete a conda environment (deactivate the environment first) - If you want to delete ALL packages associated with that enviroment (other environments will not be affected), add the flag --all
+Delete a conda environment (deactivate the environment first) - deletes all packages associated with that environment as well, other envs will not be affected
 ```
 conda env remove -n ENV_NAME
 ```
