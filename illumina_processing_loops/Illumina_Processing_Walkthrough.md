@@ -94,7 +94,9 @@ Copy the double-trimmed and renamed reads to a new folder called clean_reads.
 ```
 cd ../..
 mkdir clean_reads
-cp trimmed/trim_galore/*clean* clean_reads
+cd trimmed/trim_galore
+cp *clean* ../../clean_reads
+cd ../..
 ```
 ### Part 2 - Assign Taxonomy (Kraken - normal and special database)
 Deactivate the cleaning environment, activate the metagenomics environment for Kraken2 analysis, make a folder for kraken2, and copy clean_reads to the kraken2 folder to merge them
@@ -106,6 +108,7 @@ cp clean_reads/*.fastq kraken2
 ```
 Merge samples for Kraken2 analysis – kraken2 only takes 1 input so R1 and R2 must be merged into a singular file using the cat command (concatenate). If you have only a few samples this can be done by hand, but you can also use this loop:
 ```
+cd kraken2
 for f in *.fastq; do if [[ $f == *R1*.fastq ]]; then n=${f%%R1*.fastq}; cat ${f} ${n}R2*.fastq > ${n}merged.fastq; fi; done
 ```
 Remove the non-merged reads from this folder
@@ -141,10 +144,12 @@ for f in *.fastq; do
 done
 ```
 ### Part 4 - Binning
-MetaSPADES takes the sequence data and makes it into contigs, which are longer stretches of DNA which are supposed to be in one sequence (ie. putting together 20 chunks of E. coli DNA into one singular long chunk of E. coli DNA, in order). The output of SPADES is a folder called the sample name, and within the folder there are lots of other folders and files but the contigs.fasta file is the most important. However, for all samples, it will be called contigs.fasta, so we need to rename these to include the sample name.
+MetaSPADES takes the sequence data and makes it into contigs, which are longer stretches of DNA which are supposed to be in one sequence (ie. putting together 20 chunks of E. coli DNA into one singular long chunk of E. coli DNA, in order). The output of SPADES is a folder called the sample name, and within the folder there are lots of other folders and files but the contigs.fasta file is the most important. However, for all samples, it will be called contigs.fasta, so we need to rename these to include the sample name. We also need to move back to the metagenomics conda environment.
 
 This is a lot more complicated of a process to automate, so rather than you typing it or doing it by hand, you will make and execute a python script (basically a simple program) which does it for you. Enter the following commands to create a new folder for the contigs files to move to, and then within the spades folder, create the script:
 ```
+conda deactivate
+conda activate metagenomics
 cd ..
 mkdir binning
 cd spades
@@ -161,16 +166,16 @@ def move_contigs(base_directory, binning_directory):
     for root, dirs, files in os.walk(base_directory):
         print(root, dirs, files)  
         for file in files:
-            if file == “contigs.fasta”:
+            if file == "contigs.fasta":
                 subdirectory_name = os.path.basename(root)
                 new_filename = f'{subdirectory_name}_contigs.fasta'
                 original_file_path = os.path.join(root, file)
                 new_file_path = os.path.join(binning_directory, new_filename)
                 shutil.copy(original_file_path, new_file_path)
 # ----------
-if __name__ == “__main__”:
-    base_directory = input(“Enter path to spades directory: “)
-    binning_directory = input(“Enter path to binning directory: “)
+if __name__ == "__main__":
+    base_directory = input("Enter path to spades directory: ")
+    binning_directory = input("Enter path to binning directory: ")
     move_contigs(base_directory, binning_directory)
 ```
 After that is copied in, press control X, Y, and then enter to save the script. When you run it, it will prompt you to put in the path to the spades and binning directories. These should be:
@@ -186,9 +191,9 @@ To run the script, type the following:
 module load python
 python3 move_contigs.py
 ```
-This should rename the contigs from each folder as foldername_contigs.fasta, and copy them into binning folder. The last thing we need to do is copy the merged reads over as a template for maxbin2. These should be in the kraken folder. Copy them over and move back to the binning folder with the following code:
+This should rename the contigs from each folder as foldername_spades_contigs.fasta, and copy them into binning folder. There will be a lot of output in the terminal but this is ok. The last thing we need to do is copy the merged reads over as a template for maxbin2. These should be in the kraken folder. Copy them over and move back to the binning folder with the following code:
 ```
-cd ../kraken
+cd ../kraken2
 cp *.fastq ../binning
 cd ../binning
 ```
@@ -196,7 +201,7 @@ Now we should have specifically-named contig .fasta files for each sample as wel
 
 Metabat2 - in the binning folder, copy and paste this to run. It will make directories titled with the sample names (samplename_contigs)_metabat with the metabat outputs in them
 ```
-for f in *.fasta; do n=${f%%.fasta}; mkdir ${n}_metabat2; metabat2 -i ${n}.fasta -o ${n}_metabat; mv ${n}*.fa ${n}_metabat2; done
+for f in *.fasta; do n=${f%%.fasta}; mkdir ${n}_metabat2; metabat2 -i ${n}.fasta -o ${n}_metabat; mv ${n}.fa ${n}_metabat2; done
 ```
 Maxbin2 – copy and paste the following script after fixing the variables **u##, netid, and the environment (likely metagenomics)** to run Maxbin2 on the samples, using the original clean reads as a template to predict abundance. 
 ```
