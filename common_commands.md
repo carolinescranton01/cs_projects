@@ -7,6 +7,7 @@ These commands are used to move around and view different files on the HPC.
 script todays_work_log.txt
 ```
 This is especially helpful for us to see what commands you put in and what they outputted when looking for errors, and also for tracking the work you did on the HPC. If you don't need the log you can just delete it later. 
+**To stop logging all of your work, type 'exit' and press enter**
 
 
 **Changing directories - moving around in your files using terminal: change directory (cd)**
@@ -54,6 +55,9 @@ head file.txt
 
 # look at the last 10 lines (note - you can use the -n argument the same way as noted above)
 tail file.txt
+
+# look at the entire file
+cat file.txt
 
 # look at the number of lines, words (spaces between each word), and bytes (all characters including spaces) in a file
 # lines
