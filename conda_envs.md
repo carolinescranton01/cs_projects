@@ -46,7 +46,7 @@ Instructions on what package version or channel to use are often found in the do
 
 List all conda environments you have created and their paths
 ```
-conda list env
+conda env list
 ```
 
 Activate and deactivate environments
