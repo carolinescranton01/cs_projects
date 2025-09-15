@@ -120,6 +120,8 @@ d) cleaning
 conda create -n cleaning
 conda activate cleaning
 conda install quast -c bioconda
+# note - if quast install fails, use:
+pip install quast
 conda install trimmomatic -c bioconda
 conda install fastp -c bioconda
 conda deactivate
