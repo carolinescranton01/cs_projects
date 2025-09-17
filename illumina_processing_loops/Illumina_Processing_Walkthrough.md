@@ -8,7 +8,7 @@ At the bottom there is a visualization of the file structure and key files in ea
 **non-loop commands will be listed at the end for each program if you would like to go through each step sample-by-sample**
 
 ## Setup for this tutorial:
- 1.	Open the HPC for 6-12 hours with 24-94 cores (time and cores will depend on what steps you plan to run, they will be specified in each step) 
+ 1.	Open the HPC for 6-12 hours with 24-94 cores (time and cores will depend on what steps you plan to run and how much data you are analyzing, they will be specified in each step) 
  2.	Create conda environments and install all required software for this tutorial
 
 Cleaning
