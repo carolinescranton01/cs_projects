@@ -5,7 +5,8 @@ This tutorial follows a similar format to the Initial Illumina Shotgun Metagenom
 Example samples in this project will be called Sample1, Sample2, etc. Samples are paired reads, so each will have two files (Sample1_R1 and Sample1_R2)
 At the bottom there is a visualization of the file structure and key files in each folder. 
 
-**non-loop commands will be listed at the end for each program if you would like to go through each step sample-by-sample**
+### Non-loop commands - listed at each step. 
+Non-loop examples use sampleIDs 'sample_R1.fastq' and 'sample_R2.fastq'. When running an individual sample, these names need to be changed for both the inputs and outputs in the command.
 
 ## Setup for this tutorial:
  1.	Open the HPC for 6-12 hours with 24-94 cores (time and cores will depend on what steps you plan to run and how much data you are analyzing, they will be specified in each step) 
@@ -58,6 +59,12 @@ Firstly, filter the reads with fastp - Move into the raw_reads folder where samp
 
 ```
 cd raw_reads
+
+# single-sample command:
+
+fastp --in1 sample_R1.fastq --in2 sample_R2.fastq --out1 sample_trimmed_R1.fastq --out2 sample_trimmed_R2.fastq -l 50 -g -h wgs.html > wgs.log
+
+# loop command:
 for f in *.fastq; do
     if [[ $f == *R1.fastq ]]; then
         n=${f%%R1.fastq}
@@ -78,6 +85,10 @@ mv *trimmed* ../trimmed
 Move into trimmed folder to run trim-galore on the fastp-trimmed reads. Trim-galore removes adaptors (short sequences of DNA used to organize samples when sequencing multiple samples at the same time, which next-generation sequencing like Illumina almost always does). Copy and paste the following loop (again, don’t try to type it, the formatting will be messed up). This will run trim-galore on the samples and put outputs into a folder called trim-galore. The outputs from the two trimming steps are now going to be called ‘clean reads’ and will be moved into a folder to keep them separate for the rest of the analysis
 ```
 cd ../trimmed
+# single-sample command:
+trim_galore --paired sample_trimmed_R1.fastq sample_trimmed_R2.fastq -o trim-galore
+
+# loop command:
 for f in *.fastq; do
   if [[ $f == *R1.fastq ]]; then
     n=${f%%R1.fastq}
@@ -85,7 +96,7 @@ for f in *.fastq; do
   fi
 done
 ```
-After running trim-galore we want to rename out outputs (names are getting too long). Follow the two loops to rename the R1 and then the R2 files with _clean at the end to denote that these are the clean reads. Move into the trim-galore file, then copy and paste the loop.
+After running trim-galore we want to rename our outputs (names are getting too long). Follow the two loops to rename the R1 and then the R2 files with _clean at the end to denote that these are the clean reads. Move into the trim-galore file, then copy and paste the loop.
 ```
 cd trim-galore
 for f in *; do n=${f%%}; mv "${n}" "${f//trimmed_R1_val_1.fq/R1_clean.fastq}"; mv "${n}" "${f//trimmed_R2_val_2.fq/R2_clean.fastq}"; done
@@ -94,7 +105,7 @@ Copy the double-trimmed and renamed reads to a new folder called clean_reads.
 ```
 cd ../..
 mkdir clean_reads
-cd trimmed/trim_galore
+cd trimmed/trim-galore
 cp *clean* ../../clean_reads
 cd ../..
 ```
@@ -109,6 +120,10 @@ cp clean_reads/*.fastq kraken2
 Merge samples for Kraken2 analysis – kraken2 only takes 1 input so R1 and R2 must be merged into a singular file using the cat command (concatenate). If you have only a few samples this can be done by hand, but you can also use this loop:
 ```
 cd kraken2
+# single-sample command:
+cat sample_R1_clean.fastq sample_R2_clean.fastq > sample_merged.fastq
+
+# loop command:
 for f in *.fastq; do if [[ $f == *R1*.fastq ]]; then n=${f%%R1*.fastq}; cat ${f} ${n}R2*.fastq > ${n}merged.fastq; fi; done
 ```
 Remove the non-merged reads from this folder
@@ -117,6 +132,10 @@ rm -r *clean.fastq
 ```
 Run kraken2 on the reads. Most analysis will use the MY_KRAKEN2_DATABASE database, which is significantly smaller than the Kraken_Special_DB (contains all known genomes and non-redundant sequences, whereas MY_KRAKEN2_DATABASE does not have non-redundant sequences). Only use Kraken_Special_DB if you are on the high-memory node of the HPC and have a lot of time, and were specifically instructed to do so, as it will not succeed. This generates two text files - a report.txt and an output.txt. There are not any instructions on what to do with those in this tutorial, but they are used for analysis, so contact carolinescranton@arizona.edu if you need information on that!
 ```
+# single-sample command:
+kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report sample_report.txt --output sample_output.txt sample_merged.fastq -t 94
+
+# loop command:
 for f in *.fastq; do n=${f%%.fastq}; kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report "${n}_report.txt" --output "${n}_output.txt" ${n}.fastq -t 94; done
 ```
 If you are using the special database, the only change is after the --db flag, where you would write /groups/kcooper/Kraken_Special_DB (as of 5-1-25, that database is not in there - will update it when it is!)
@@ -133,6 +152,10 @@ cd spades
 ```
 Run metaSPADES – **this is very time intensive! If you are doing this on multiple samples, it will likely not finish all of them unless the samples are small or the HPC is open for a very long time (+100 hours)**. For context, a 2 GB paired sample took ~17 hours to run – loop can be used on small samples, if there are few samples, or if HPC is open for a while. In the loop, 'Assemblers' should be changed to match your conda environment name (which is probably assemblers or Assemblers). Copy and paste the following
 ```
+# single-sample command:
+~/.conda/envs/Assemblers/bin/spades.py --meta -1 sample_R1_clean.fastq -2 sample_R2_clean.fastq -o sample_spades -t 94
+
+# loop command:
 for f in *.fastq; do
     if [[ $f == *R1_clean.fastq ]]; then
         n=${f%%R1_clean.fastq}
@@ -201,10 +224,18 @@ Now we should have specifically-named contig .fasta files for each sample as wel
 
 Metabat2 - in the binning folder, copy and paste this to run. It will make directories titled with the sample names (samplename_contigs)_metabat with the metabat outputs in them
 ```
+# single-sample command:
+metabat2 -i sample_contigs.fasta -o sample_contigs_metabat
+
+# loop command:
 for f in *.fasta; do n=${f%%.fasta}; mkdir ${n}_metabat2; metabat2 -i ${n}.fasta -o ${n}_metabat; mv ${n}.fa ${n}_metabat2; done
 ```
 Maxbin2 – copy and paste the following script after fixing the variables **u##, netid, and the environment (likely metagenomics)** to run Maxbin2 on the samples, using the original clean reads as a template to predict abundance. 
 ```
+# single-sample command:
+/home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig sample_contigs.fasta -reads sample_merged.fastq" -max_iteration 5 -out sample_maxbin2
+
+# loop command:
 for file in *.fasta; do n="${file%%_contigs.fasta}"; 
 mkdir "${n}_maxbin2";
 /home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig "$file" -reads "${n}_merged.fastq" -max_iteration 5 -out "${n}_maxbin2"; 
@@ -217,9 +248,16 @@ conda activate /groups/kcooper/Checkm2_env
 ```
 Then, use the following loop to run checkm2 on the samples:
 ```
+# single sample command (metabat)
+checkm2 predict --threads 94 --input sample_contigs_metabat --output-directory sample_contigs_metabat_checkm2 -x .fa
+
+# single-sample command (maxbin)
+checkm2 predict --threads 94 --input sample_contigs_maxbin2 --output-directory sample_contigs_maxbin2_checkm2 -x .fa
+
+# loop command (for both metabat and maxbin2)
 for dir in ./*; do n="${dir}"; checkm2 predict --threads 94 --input "${n}" --output-directory "${n}_checkm2" -x .fa; done
 ```
-Finall,y move all checkm2 output folders into their own folder separate from the bins
+Finally, move all checkm2 output folders into their own folder separate from the bins
 ```
 cd ..
 mkdir checkm2
@@ -227,33 +265,4 @@ mv binning/*_checkm2 checkm2
 ```
 
 After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
-
-
-
-### Non-loop commands
-
-Examples use sampleIDs sample_R1.fastq and sample_R2.fastq. You will need to follow along with the rest of the tutorial in order to make sure sample names and extensions are correct and that everything is in the right folders
-
-```
-#fastp
-fastp --in1 sample_R1.fastq --in2 sample_R2.fastq --out1 sample_trimmed_R1.fastq --out2 sample_trimmed_R2.fastq -l 50 -g -h wgs.html > wgs.log
-#trim-galore
-trim_galore --paired sample_trimmed_R1.fastq sample_trimmed_R2.fastq -o trim-galore
-#concatenating reads for kraken
-cat sample_R1_clean.fastq sample_R2_clean.fastq > sample_merged.fastq
-#kraken2
-kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report sample_report.txt --output sample_output.txt sample_merged.fastq -t 94
-#spades
-~/.conda/envs/Assemblers/bin/spades.py --meta -1 sample_R1_clean.fastq -2 sample_R2_clean.fastq -o sample_spades -t 94
-#metabat2
-metabat2 -i sample_contigs.fasta -o sample_contigs_metabat
-#maxbin2
-/home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig sample_contigs.fasta -reads sample_merged.fastq" -max_iteration 5 -out sample_maxbin2
-#checkm2 - metabat2
-checkm2 predict --threads 94 --input sample_contigs_metabat --output-directory sample_contigs_metabat_checkm2 -x .fa
-#checkm2 - maxbin2
-checkm2 predict --threads 94 --input sample_contigs_maxbin2 --output-directory sample_contigs_maxbin2_checkm2 -x .fa
-```
-<img width="637" alt="Screenshot 2025-05-07 at 9 31 49 AM" src="https://github.com/user-attachments/assets/83317be4-4b98-42b7-90a6-a8f42db176c9" />
-
 
