@@ -115,7 +115,7 @@ conda install modeltest-ng -c bioconda
 conda deactivate
 ```
 
-d) cleaning
+d) cleaning 
 ```
 conda create -n cleaning
 conda activate cleaning
@@ -124,6 +124,7 @@ conda install quast -c bioconda
 pip install quast
 conda install trimmomatic -c bioconda
 conda install fastp -c bioconda
+conda install trim-galore -c bioconda
 conda deactivate
 ```
 
