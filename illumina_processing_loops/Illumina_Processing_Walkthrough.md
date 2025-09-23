@@ -140,6 +140,20 @@ for f in *.fastq; do n=${f%%.fastq}; kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/
 ```
 If you are using the special database, the only change is after the --db flag, where you would write /groups/kcooper/Kraken_Special_DB (as of 5-1-25, that database is not in there - will update it when it is!)
 
+**EXTRA STEP FOR ANALYSIS IN R**
+To analyze kraken2 outputs in R, we convert them into a special format called a .biom file. To generate a .biom file you need metadata, which is data about the sequence data (ie. where it came from, what day it was collected, if the source was sick or healthy, etc). This metadata needs to be in a tab-separated-value file (.tsv). I usually make these on microsoft excel, save them as .txt files, and then replace the .txt to .tsv in the filename as you cannot save a microsoft excel table to a .tsv file directly. This file must be uploaded into the same folder where your kraken2 reports are. **The first column in the metadata table should be named sampleID and the values in that column need to correspond to the sample names - ie. if your sample was called positive1.fastq, and your kraken2 report is called positive1_report.txt, the value in sampleID should be positive1**. To run kraken biom, make sure the command is installed in the same environment as kraken2 (conda install kraken-biom -c bioconda) and then use the following command:
+```
+kraken-biom sample1_report.txt sample2_report.txt sample3_report.txt -m metadata.tsv -o output.biom
+```
+where samples are called 'sample1', 'sample2', and 'sample3', metadata is called 'metadata.tsv', and your output biom file is called 'output.biom'
+
+NOTE: Report files must all be listed in the command. If you have a lot of files, the most efficient way to get this list of file names is to type:
+```
+ls -1 | tr '\n' ' ' > filenames.txt
+```
+Which lists the file names, removes the new lines and replaces them with a space, and outputs a new file called filenames.txt. Then, open the filenames.txt file (which should say sample1_report.txt sample2_report.txt sample3_report.txt), make sure there are no unnecissary filenames (like the metadata.tsv file, which can be deleted from the list of file names), and then copy and paste that into the kraken-biom command when writing it in the terminal.
+
+
 ### Part 3 - assembly
 We will now go back to the non-merged reads for the rest of the analysis, which starts with assembly via metaSPADES. We need to make and move to a different folder and change conda environments
 ```
