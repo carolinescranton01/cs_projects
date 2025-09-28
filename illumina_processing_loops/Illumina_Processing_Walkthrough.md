@@ -223,7 +223,7 @@ After that is copied in, press control X, Y, and then enter to save the script. 
 
 Make sure you change your netid and project-name to match what you are doing!
 
-To run the script, type the following:
+To run the script, type the following **while in the spades folder where the script is located**:
 ```
 module load python
 python3 move_contigs.py
@@ -244,15 +244,18 @@ metabat2 -i sample_contigs.fasta -o sample_contigs_metabat
 # loop command:
 for f in *.fasta; do n=${f%%.fasta}; mkdir ${n}_metabat2; metabat2 -i ${n}.fasta -o ${n}_metabat; mv ${n}.fa ${n}_metabat2; done
 ```
-Maxbin2 – copy and paste the following script after fixing the variables **u##, netid, and the environment (likely metagenomics)** to run Maxbin2 on the samples, using the original clean reads as a template to predict abundance. 
+Maxbin2 – copy and paste the following script to run Maxbin2 on the samples, using the original clean reads as a template to predict abundance. You need to update FragGeneScan the first time you use this program by re-installing a higher version, this is the first line in the code. 
 ```
+# update fraggenescan:
+conda install -c bioconda fraggenescan
+
 # single-sample command:
-/home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig sample_contigs.fasta -reads sample_merged.fastq" -max_iteration 5 -out sample_maxbin2
+run_MaxBin.pl -contig sample_contigs.fasta -reads sample_merged.fastq -max_iteration 5 -out sample_maxbin2
 
 # loop command:
 for file in *.fasta; do n="${file%%_contigs.fasta}"; 
 mkdir "${n}_maxbin2";
-/home/u##/netid/.conda/envs/Metagenomics/bin/run_MaxBin.pl -contig "$file" -reads "${n}_merged.fastq" -max_iteration 5 -out "${n}_maxbin2"; 
+run_MaxBin.pl -contig "$file" -reads "${n}_merged.fastq" -max_iteration 5 -out "${n}_maxbin2"; 
 mv ${n}_maxbin2* ${n}_maxbin2; done
 ```
 Run CheckM2 on the bins within the folder using the following loop. **Make sure you assigned a variable to the CheckM2 database, which was one of the very first steps in this tutorial!** First, activate the checkm2 environment (use your own, or alternatively, use the Checkm2_env in the groups folder /groups/kcooper/Checkm2_env)
