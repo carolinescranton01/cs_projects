@@ -236,6 +236,7 @@ cd ../binning
 ```
 Now we should have specifically-named contig .fasta files for each sample as well as the clean _merged.fastq files for each sample (with matching names), and can continue with metabat and maxbin2 binning
 
+**NOTE: as of Oct 1 2025, this code is not working. I am trying to fix it and will update when I can!! - caroline**
 Metabat2 - in the binning folder, copy and paste this to run. It will make directories titled with the sample names (samplename_contigs)_metabat with the metabat outputs in them
 ```
 # single-sample command:
