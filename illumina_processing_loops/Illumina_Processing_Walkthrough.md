@@ -236,7 +236,7 @@ cd ../binning
 ```
 Now we should have specifically-named contig .fasta files for each sample as well as the clean _merged.fastq files for each sample (with matching names), and can continue with metabat and maxbin2 binning
 
-**NOTE: as of Oct 1 2025, this code is not working. I am trying to fix it and will update when I can!! - caroline**
+
 Metabat2 - in the binning folder, copy and paste this to run. It will make directories titled with the sample names (samplename_contigs)_metabat with the metabat outputs in them
 ```
 # single-sample command:
@@ -245,6 +245,9 @@ metabat2 -i sample_contigs.fasta -o sample_contigs_metabat
 # loop command:
 for f in *.fasta; do n=${f%%.fasta}; mkdir ${n}_metabat2; metabat2 -i ${n}.fasta -o ${n}_metabat; mv ${n}.fa ${n}_metabat2; done
 ```
+
+**NOTE: as of Oct 1 2025, this code for Maxbin2 is not working. I am trying to fix it and will update when I can!! - caroline**
+
 Maxbin2 – copy and paste the following script to run Maxbin2 on the samples, using the original clean reads as a template to predict abundance. You need to update FragGeneScan the first time you use this program by re-installing a higher version, this is the first line in the code. 
 ```
 # update fraggenescan:
