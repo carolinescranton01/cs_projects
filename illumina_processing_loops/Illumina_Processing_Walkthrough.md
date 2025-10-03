@@ -287,3 +287,26 @@ mv binning/*_checkm2 checkm2
 
 After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
 
+**edit 10-2-25**
+CONTINUING STEPS - Functional analysis with prokka
+
+Functional analysis looks at the DNA which was sequenced and maps the sequences to specific proteins, by identifying the 3-base-long codons to form amino acid sequences, which then it matches to protein databases to determine the different proteins that the genome codes for. It tells you what proteins the bacteria can *possibly* make, but one thing to remember is that just because the gene is present, it doesn't mean that the organism is ACTUALLY producing it. 
+
+The program prokka can be installed and used to assign taxonomy to assembled contigs or binned contigs (.fasta, .fa files). To install prokka use the following command (I activated my metagenomics environment first so I have prokka grouped with my binning software):
+```
+conda activate metagenomics
+conda install -c conda-forge -c bioconda -c defaults prokka
+```
+
+Prokka can be run VERY simply, just by inputting a .fasta/.fa file. To do this, navigate to your spades directory (if using just assembled contigs) or your binning directory, specifically a folder containing binned .fa files (if using binned samples). If you need more specific parameters for your analysis, you can add different arguments. Check out their page for more info: https://github.com/tseemann/prokka
+
+```
+# simplest case (file name is binned-contigs.fa, could be just a contigs.fasta file too)
+prokka binned-contigs.fa
+
+# intermediate case (names output folder and files specifically, rather than just with today's date. change foldername and sampleID to what you want/specifics for your project) 
+prokka --outdir foldername --prefix sampleID binned-contigs.fasta
+```
+There are more specific options that you can specify as well, like if you only want to identify genes from archea instea of bacteria, or if you have a reference genome, or how to subset the results for only proteins of interest. The output used for firther analysis is the .tsv file within the sample folder, but the other folders contain useful information as well (especially for looking at mutations). I am not an expert at this (and have never done it for any real samples), so please let me know if you are planning on using this and we can work together to figure out what the best steps are!
+
+
