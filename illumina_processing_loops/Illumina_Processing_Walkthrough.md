@@ -304,8 +304,16 @@ Prokka can be run VERY simply, just by inputting a .fasta/.fa file. To do this, 
 # simplest case (file name is binned-contigs.fa, could be just a contigs.fasta file too)
 prokka binned-contigs.fa
 
-# intermediate case (names output folder and files specifically, rather than just with today's date. change foldername and sampleID to what you want/specifics for your project) 
+# intermediate case (names output folder and files specifically, rather than just with today's date.
+# change foldername and sampleID to what you want/specifics for your project) 
 prokka --outdir foldername --prefix sampleID binned-contigs.fasta
+
+# loop command for metabat2 files (run within sample_metabat2 folder)
+for fa in *.fa; do
+    num=$(echo "$fa" | grep -o '[0-9]\+')
+    outdir="bin${num}"
+    prokka --outdir "$outdir" --prefix "bin${num}" "$fa"
+done
 ```
 There are more specific options that you can specify as well, like if you only want to identify genes from archea instea of bacteria, or if you have a reference genome, or how to subset the results for only proteins of interest. The output used for firther analysis is the .tsv file within the sample folder, but the other folders contain useful information as well (especially for looking at mutations). I am not an expert at this (and have never done it for any real samples), so please let me know if you are planning on using this and we can work together to figure out what the best steps are!
 
