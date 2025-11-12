@@ -11,6 +11,9 @@ Create a new conda environment (I called it longreads) and install the following
 # create new env
 conda create -n longreads -c bioconda
 
+# activate env
+conda activate longreads
+
 # install new packages
 conda install -c bioconda filtlong
 conda install -c bioconda minimap2
@@ -67,6 +70,58 @@ minimap2 -d GRCh38.mmi GRCh38.fa
 Now we have our indexed reference genome, so we can filter our reads against it:
 
 ```
+# single-sample command:
+inimap2 -ax map-ont "$HOST_INDEX" "$file" | samtools view -b -f 4 > "${base}_nonhost.bam"
+
+# loop:
+# set host genome - change to match your file name if you did not use the human genome
+HOST_INDEX="GRCh38.mmi"
+
+# run the command on the filtered samples
+for file in *_filt.fastq; do
+    base="${file%.fastq}"
+    minimap2 -ax map-ont "$HOST_INDEX" "$file" | samtools view -b -f 4 > "${base}_nonhost.bam"
+    # convert BAM to FASTQ for non-host reads only
+    samtools fastq "${base}_nonhost.bam" > "${base/_filt/_clean}.fastq"
+    # remove intermediate BAM file
+    rm "${base}_nonhost.bam"
+done
+```
+**Note:** minimap2 can be used to map your reads to any genome - while we are using it to pull out host reads, if you had an organism of interest you could use minimap to pull reads from that organism out of your sample. 
+
+**Note:** the human genome is large (the raw file and indexed file together are 10GB). These can be deleted when you are done and redownloaded/indexed at a later time to save space.
+
+Now we have our reads which are filtered for quality and host reads are removed, we can copy them to a new folder:
 
 ```
-Note: minimap2 can be used to map your reads to any genome - while we are using it to pull out host reads, if you had an organism of interest you could use minimap to pull reads from that organism out of your sample. 
+cd ..
+mkdir clean
+mv filtered/*clean.fastq clean
+cd clean
+```
+
+## Step 4: assign taxonomy with kraken2
+
+If kraken2 is already installed in the metagenomics environment, activate it. If not, install kraken2 and kraken-biom with the following commands:
+```
+# deactivate longreads 
+conda deactivate
+
+# create and activate a new environment (metagenomics)
+conda create -n metagenomics -c bioconda
+conda acivate metagenomics
+
+# install packages
+conda install kraken2 -c bioconda
+conda install kraken-biom -c bioconda
+```
+
+Kraken2 assigns taxonomy to the reads based on 35 bp kmers, or segments of DNA which are 35 bases long, which are mapped to a specified database. We will use the database in the groups folder (/groups/kcooper/MY_KRAKEN2_DB) but you can download and build custom databases if needed. Run this command from inside the clean folder, which contains our cleaned up reads. Make sure to have a metadata file ready if you are wanting to run kraken-biom.
+
+```
+# single sample:
+kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report sample_report.txt --output sample_output.txt sample_merged.fastq -t 94
+
+# loop:
+for f in *.fastq; do n=${f%%.fastq}; kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report "${n}_report.txt" --output "${n}_output.txt" ${n}.fastq -t 94; done
+```
