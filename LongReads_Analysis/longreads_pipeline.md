@@ -49,7 +49,7 @@ cd filtered
 If your dataset is large you can include the -t flag (target bases) which will set an upper limit - the recommended is 500 mb (500 million bases per read)
 
 ## Step 3: remove human (or host) DNA
-When we sequence from an organism (ie. sequence the gut microbiome of a human), we often get a good deal of host contaminant (human DNA, or the DNA of any other host). Sequencing does not discriminate between prokaryotic and eukaryotic DNA so we have to remove that after we have already sequenced our sample. For that we will use minimap2 and a host genome, in this case a human genome.
+When we sequence from an organism (ie. sequence the gut microbiome of a human), we often get a good deal of host contaminant (human DNA, or the DNA of any other host). Sequencing does not discriminate between prokaryotic and eukaryotic DNA so we have to remove that after we have already sequenced our sample. For that we will use minimap2 and a host genome, in this case a human genome. This code is for oxford nanopore reads - if you have pacbio reads the -ax flag will need ot be altered. For more info and documentation on minimap2, see their github page: https://github.com/lh3/minimap2 
 
 The first time you use this, you will need to download a host genome and index it (into the filtered folder with our filtered samples). This is an example with the human genome:
 
@@ -116,7 +116,7 @@ conda install kraken2 -c bioconda
 conda install kraken-biom -c bioconda
 ```
 
-Kraken2 assigns taxonomy to the reads based on 35 bp kmers, or segments of DNA which are 35 bases long, which are mapped to a specified database. We will use the database in the groups folder (/groups/kcooper/MY_KRAKEN2_DB) but you can download and build custom databases if needed. Run this command from inside the clean folder, which contains our cleaned up reads. Make sure to have a metadata file ready if you are wanting to run kraken-biom.
+Kraken2 assigns taxonomy to the reads based on 35 bp kmers, or segments of DNA which are 35 bases long, which are mapped to a specified database. We will use the database in the groups folder (/groups/kcooper/MY_KRAKEN2_DB) but you can download and build custom databases if needed. Run this command from inside the clean folder, which contains our cleaned up reads. Make sure to have a metadata file ready if you are wanting to run kraken-biom. Here is the github page for kraken2: https://github.com/DerrickWood/kraken2/wiki/Manual
 
 ```
 # single sample:
@@ -124,4 +124,49 @@ kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report sample_report.txt --output 
 
 # loop:
 for f in *.fastq; do n=${f%%.fastq}; kraken2 --db /groups/kcooper/MY_KRAKEN2_DB/ --report "${n}_report.txt" --output "${n}_output.txt" ${n}.fastq -t 94; done
+```
+
+To generate a .biom file for analysis in R, use the following command, where each sample is listed out in the command, metadata.tsv is your metadata file, and output.biom is the biom file output for analysis in R
+
+```
+kraken-biom sample1_report.txt sample2_report.txt sample3_report.txt -m metadata.tsv -o output.biom
+```
+
+Finally, to clean things up, we will move all kraken outputs and files into an external folder
+
+```
+cd ..
+mkdir kraken
+mv clean/*report.txt kraken
+mv clean/*output.txt kraken
+mv clean/*.tsv kraken
+mv clean/*.biom kraken
+```
+## Step 5: Assemble the genomes with Flye (better for metagenomic samples - use Canu for single isolates)
+
+We will now assemble metagenome-assembled genomes from our clean reads. First, we will copy the clean reads into a new folder, and then activate the assemblers environment (if you have this created and installed - if not see the last few lines of code in the following chunk). Here is the flye manual: https://github.com/mikolmogorov/Flye/blob/flye/docs/USAGE.md
+
+```
+# copy the reads to a new folder
+mkdir assembly
+cp clean/*clean.fastq assembly
+cd assembly
+
+# change conda environments (if you have flye instealled in the assemblers environment)
+conda deactivate
+conda activate assemblers
+
+# if you do not have assemblers environment created and flye installed, you can install it into the longreads environment
+conda deactivate
+conda activate longreads
+conda install -c bioconda flye
+```
+
+Flye will assemble the genomes - **this may take a very long time**. It is recomemeded to open the HPC for 24+ hours when doing assembly, especially in loops.
+**11-12-25 IN PROGRESS**
+```
+# single sample:
+flye --nano-raw sample_clean.fastq --out-dir flye_metagenome_out --meta --threads 16
+
+# loop:
 ```
