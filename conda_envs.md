@@ -140,6 +140,17 @@ conda install kraken-biom -c bioconda
 conda deactivate
 ```
 
+f) longreads
+```
+# create new env
+conda create -n longreads -c bioconda
+conda activate longreads
+conda install -c bioconda filtlong
+conda install -c bioconda minimap2
+conda install -c bioconda samtools
+conda deactivate
+```
+
 Access to biobakery env
 ```
 conda activate /groups/kcooper/biobakery_env
