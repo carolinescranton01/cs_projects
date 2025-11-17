@@ -23,7 +23,7 @@ conda install -c bioconda samtools
 
 ## Step 2: Filter low-quality reads using filtlong
 
-Filtlong (https://github.com/rrwick/Filtlong) filters short reads and reads with low quality. The code below filters reads which are shorter than 1000 base pairs (long reads should be 10-100 kb in length) and keeps the top 90% of reads with the best quality. The input is input.fastq. The last part of the command ( > output.fastq) outputs into a new file called output.fastq. Below is the single-sample command, and the loop command.
+Filtlong (https://github.com/rrwick/Filtlong) filters long reads and reads with low quality. The code below filters reads which are shorter than 1000 base pairs (long reads should be 10-100 kb in length) and keeps the top 90% of reads with the best quality. The input is input.fastq. The last part of the command ( > output.fastq) outputs into a new file called output.fastq. Below is the single-sample command, and the loop command.
 
 ```
 # if not already activated:
