@@ -18,6 +18,7 @@ conda activate longreads
 conda install -c bioconda filtlong
 conda install -c bioconda minimap2
 conda install -c bioconda samtools
+pip install graphmb
 
 ```
 
@@ -162,8 +163,13 @@ conda activate longreads
 conda install -c bioconda flye
 ```
 
-Flye will assemble the genomes - **this may take a very long time**. It is recomemeded to open the HPC for 24+ hours when doing assembly, especially in loops.
-**11-12-25 IN PROGRESS**
+Flye will assemble the genomes. Rather than using a loop this time, we will use a different 'type' of code to do this, called a batch job. It does bascially the same thing as a loop but is even more hands-off. Here is the link to the HPC documentation on this: https://hpcdocs.hpc.arizona.edu/running_jobs/batch_jobs/intro/.
+
+To run a batch job we use a slurm script, which is a document of that tells the computer what analysis to run. Below is the text for a slurm script: [STILL WORKING ON THIS 3-2-26 lmk if you need it by emailling me!]
+```
+
+```
+
 ```
 # single sample:
 flye --nano-raw sample_clean.fastq --out-dir flye_metagenome_out --meta --threads 16
