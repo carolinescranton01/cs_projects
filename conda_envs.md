@@ -158,7 +158,7 @@ conda activate /groups/kcooper/biobakery_env
 
 Access to checkM2 env (if install fails)
 ```
-conda activate /groups/kcooper/checkm2_env
+conda activate /groups/kcooper/Checkm2_env
 ```
 
 Access to metagenomics env (if install fails)
