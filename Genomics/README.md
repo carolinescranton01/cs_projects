@@ -1,4 +1,4 @@
-**Instructions for genomic analysis**
+### Instructions for genomic analysis
 
 *Note (4-15-26) - this page is still in progress. Do not follow tutorials unless CS told you they are done, I am using this mostly as a placeholder for notes!*
 
