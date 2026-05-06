@@ -19,7 +19,13 @@ wget https://data.qiime2.org/2024.2/common/silva-138-99-seqs.qza
 wget https://data.qiime2.org/2024.2/common/silva-138-99-tax.qza
 
 # Extract sequences for 515F-926R
-apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime feature-classifier extract-reads --i-sequences silva-138-99-seqs.qza --p-f-primer GTGCCAGCMGCCGCGGTAA --p-r-primer CCGYCAATTYMTTTRAGTTT --p-trunc-len 0 --o-reads ref-seqs-515-926.qza
+apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime feature-classifier extract-reads\
+ --i-sequences silva-138-99-seqs.qza\
+ --p-f-primer GTGCCAGCMGCCGCGGTAA\
+ --p-r-primer\
+ CCGYCAATTYMTTTRAGTTT\
+ --p-trunc-len 0\
+ --o-reads ref-seqs-515-926.qza
 
 # Build classifier
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime feature-classifier fit-classifier-naive-bayes --i-reference-reads ref-seqs-515-926.qza --i-reference-taxonomy silva-138-99-tax.qza --o-classifier silva-138-515-926-classifier.qza
