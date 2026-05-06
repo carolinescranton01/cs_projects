@@ -32,13 +32,13 @@ Use the following directory structure: /xdisk/PI-netID/your-netID/ILLUMINA_16S/d
 The manifest links the sampleIDs to their absolute file path. It should be in a tab-deliminated text file (tsv). It has the following header columns
 sampleID    forward-absolute-filepath    reverse-absolute-filepath
 
-A snippet of a properly-formatted sample manifest is below:
+A snippet of a example sample manifest is below. Note that there should only be a SINGLE tab between each line, there are multiple in this example to make it look nice but it should just be a single tab between each column.
 
-sample-id	forward-absolute-filepath	reverse-absolute-filepath
-Scranton-9435934_0003_n_IgAseq_S53	/data/fastq/Scranton-9435934_0003_n_IgAseq_S53_R1_001.fastq.gz	/data/fastq/Scranton-9435934_0003_n_IgAseq_S53_R2_001.fastq.gz
-Scranton-9435934_0003_p_IgAseq_S5	/data/fastq/Scranton-9435934_0003_p_IgAseq_S5_R1_001.fastq.gz	/data/fastq/Scranton-9435934_0003_p_IgAseq_S5_R2_001.fastq.gz
-Scranton-9435934_0004_n_IgAseq_S54	/data/fastq/Scranton-9435934_0004_n_IgAseq_S54_R1_001.fastq.gz	/data/fastq/Scranton-9435934_0004_n_IgAseq_S54_R2_001.fastq.gz
-Scranton-9435934_0004_p_IgAseq_S6	/data/fastq/Scranton-9435934_0004_p_IgAseq_S6_R1_001.fastq.gz	/data/fastq/Scranton-9435934_0004_p_IgAseq_S6_R2_001.fastq.gz
+sample-id	                             forward-absolute-filepath	                                        reverse-absolute-filepath
+Scranton-9435934_0003_n_IgAseq_S53	  /data/fastq/Scranton-9435934_0003_n_IgAseq_S53_R1_001.fastq.gz	    /data/fastq/Scranton-9435934_0003_n_IgAseq_S53_R2_001.fastq.gz
+Scranton-9435934_0003_p_IgAseq_S5	    /data/fastq/Scranton-9435934_0003_p_IgAseq_S5_R1_001.fastq.gz	      /data/fastq/Scranton-9435934_0003_p_IgAseq_S5_R2_001.fastq.gz
+Scranton-9435934_0004_n_IgAseq_S54	  /data/fastq/Scranton-9435934_0004_n_IgAseq_S54_R1_001.fastq.gz	    /data/fastq/Scranton-9435934_0004_n_IgAseq_S54_R2_001.fastq.gz
+Scranton-9435934_0004_p_IgAseq_S6	    /data/fastq/Scranton-9435934_0004_p_IgAseq_S6_R1_001.fastq.gz	      /data/fastq/Scranton-9435934_0004_p_IgAseq_S6_R2_001.fastq.gz
 
 Note - the file paths can start at the data folder
 
