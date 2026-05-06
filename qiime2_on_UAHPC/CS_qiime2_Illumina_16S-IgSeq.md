@@ -1,11 +1,13 @@
 # CS qiime2 processing of IgG and IgA-seq reads (Illumina)
-## Demultiplexed fastq files (part A)
 
 **Set up commands**
 
 **Download qiime2 apptainer**
+
 (note - be sure to use UA HPC ocelote cluster)
+
 Use the following directory structure:
+
 /xdisk/PI-netID/your-netID/ILLUMINA_16S/data/[download_to_this_folder]
 
 ```
@@ -14,6 +16,7 @@ apptainer pull docker://quay.io/qiime2/amplicon:2024.10
 ```
 
 Any qiime2 command will now have to be prefaced with the apptainer exec -B flag, so all commands will start with this:
+
 **apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif**
 
 **Build the SILVA 515-926R custom classifier** (this matches our primer region better and gets better/more accurate classification. These commands may take a while to run (several hours)
@@ -38,9 +41,11 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
  --o-classifier silva-138-515-926-classifier.qza
 ```
 
-**PATH A. DEMULTIPLEXED PAIRED .FASTQ.GZ FILES**
 
-**Step 2a. Create sample manifest (.tsv)**
+## PATH A. DEMULTIPLEXED PAIRED .FASTQ.GZ FILES
+### Qiime2 format - PairedEndFastqManifestPhred33V2
+
+**Step 1a. Create sample manifest (.tsv)**
 
 Use the following directory structure: /xdisk/PI-netID/your-netID/ILLUMINA_16S/data/[upload_manifest_here]
 The manifest links the sampleIDs to their absolute file path. It should be in a tab-deliminated text file (tsv). It has the following header columns
@@ -51,12 +56,12 @@ A snippet of a example sample manifest is below. Note that there should only be 
 
 Note - the file paths can start at the data folder
 
-**Step 3a. Upload fastq.gz files to HPC**
+**Step 2a. Upload fastq.gz files to HPC**
 
 Use the following directory structure:
 /xdisk/PI-netID/your-netID/ILLUMINA_16S/data/fastq/[upload gzipped fastq here]
 
-**Step 4a. Run the qiime2 import command**
+**Step 3a. Run the qiime2 import command**
 
 ```
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime tools import \
@@ -66,7 +71,7 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
  --input-format PairedEndFastqManifestPhred33V2
 ```
 
-**Step 5a. Visualize to determine trim lengths**
+**Step 4a. Visualize to determine trim lengths**
 
 ```
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime demux summarize \
@@ -76,7 +81,7 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
 
 Open the demux.qzv file in qiime2view (https://view.qiime2.org/) to determine where in the forward/reverse read the quality drops (where does it average below 30 on both plots). These values will be used in the trim command
 
-**Step 6a. Trim the reads**
+**Step 5a. Trim the reads**
 
 Replace the values after --p-trunc-len-f and --p-trun-len-r with the values for forward (f) and reverse (r) from step 5
 
@@ -93,7 +98,7 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
  --p-n-threads 16
 ```
 
-**Step 7a. Classify with custom 515F-926R classifier**
+**Step 6a. Classify with custom 515F-926R classifier**
 
 ```
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime feature-classifier classify-sklearn \
@@ -102,7 +107,7 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
  --o-classification taxonomy.qza
 ```
 
-**Step 8a. Export feature table**
+**Step 7a. Export feature table**
 
 ```
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime tools export \
@@ -110,7 +115,7 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
   --output-path exported-table
 ```
 
-**Step 9a. Convert to biom format**
+**Step 8a. Convert to biom format**
 
 ```
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif biom convert \
@@ -119,7 +124,7 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
   --to-tsv
 ```
 
-**Step 10a. export taxonomy**
+**Step 9a. export taxonomy**
 
 ```
 apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime tools export \
@@ -127,14 +132,14 @@ apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_20
   --output-path exported-taxonomy
 ```
 
-**Step 11a. Convert taxonomy to long format for analysis in excel**
+**Step 10a. Convert taxonomy to long format for analysis in excel**
 This will create a TSV file containing the whole taxonomic string for each feature identified in each sample, with the abundance. So for example, if ten species were found in sample 1, rows 2-11 of the tsv would be sample1 and each row would contain the entire string for each unique species with the abundance as the last column.
 
 Use the python script linked here to do this:
 longformat.py 
 https://github.com/carolinescranton01/cs_projects/blob/main/qiime2_on_UAHPC/longformat.py
 
-**Step 12a. split taxonomic ranks into individual columns**
+**Step 11a. split taxonomic ranks into individual columns**
 
 ```
 python -c "import pandas as pd; df=pd.read_csv('long_feature_table.tsv', sep='\t'); t=df['taxonomy'].str.split(';', expand=True).apply(lambda x: x.str.strip() if x is not None else x); t=t.reindex(columns=range(7)); t.columns=['kingdom','phylum','class','order','family','genus','species']; df=df.join(t); df.to_csv('long_feature_table_ranks.tsv', sep='\t', index=False)"
@@ -143,7 +148,74 @@ python -c "import pandas as pd; df=pd.read_csv('long_feature_table.tsv', sep='\t
 Now you can download the long_feature_table_ranks.tsv and use that for further IgG/IgA seq analysis, detailed elsewhere
 
 
-## Multiplexed fastq files
+## PATH B: multiplexed fastq files (Illumina)
+### Qiime2 format - EMPPairedEndSequences
 
+Make sure the set up commands (Download the qiime2 apptainer and build SILVA 515F-926R classifier) from the beginning of this page are run!
 
+**Step 1b. Upload data**
+
+Upload your forward.fastq.gz, reverse.fastq.gz, and barcodes.fastq.gz files into a folder called 'fastq' with this directory structure:
+/xdisk/PI-netID/your-netID/ILLUMINA_16S/data/fastq/[upload here]
+
+This folder, containing the multiplexed data, should be within the folder containing the amplicon.sif file
+
+**Step 2b. create and upload metadata**
+
+Create a .tsv file with the sampleIDs and Golay barcodes from library prep (https://earthmicrobiome.org/wp-content/uploads/2022/06/EMP_16S_V4V5_515F_926R_Parada_Quince.xlsx)
+
+The first column should be the sampleIDs, which is what the samples will be called after demultiplexing. The second column will be the corresponding barcode. Upload this .tsv file into the data directory.
+
+**Step 3b. Import the data into qiime**
+
+```
+apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime tools import \
+   --type EMPPairedEndSequences \
+   --input-path fastq \
+   --output-path emp-paired-end-sequences.qza
+```
+
+**Step 4b. Demultiplex the sequences**
+
+```
+apptainer exec -B /xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime demux emp-paired \
+  --m-barcodes-file meta.tsv \
+  --m-barcodes-column barcodes \
+  --p-rev-comp-mapping-barcodes \
+  --i-seqs emp-paired-end-sequences.qza \
+  --o-per-sample-sequences demux-full.qza \
+  --o-error-correction-details demux-details.qza
+```
+
+**Step 5b. Visualize the sequences using qiime2view**
+
+This step helps you decide where to trim the sequences in the following step. Upload the demuz.qzv to view.qiime2.org. Go to the interactive quality plot tab. Determine the highest base possible where the average quality (middle of black bars) is 30 (*Note - there is some variance, meaning some samples may be less than 30 quality or greater than 30 after that base. Choose a base that shows the overall trend in the data is now at 30 and dropping at higher bases*). Use these two numbers in the following step in the --p-trunc-len-f and --p-trun-len-r arguments.
+
+**Step 6b. Trim the sequences**
+
+```
+apptainer exec -B xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux-full.qza \
+  --p-trim-left-f 0 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f #YOUR NUMBER HERE (forward) \
+  --p-trunc-len-r #YOUR NUMBER HERE (reverese) \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+```
+**Step 7b. Classify the sequences**
+
+First, ensure the silva-138-515-926-classifier.qza is in the data folder.
+
+```
+apptainer exec -B xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_2024.10.sif qiime feature-classifier classify-sklearn \
+ --i-classifier silva-138-515-926-classifier.qza \
+ --i-reads rep-seqs.qza \
+ --o-classification taxonomy.qza
+```
+
+**Steps 8b-12b are the same as steps 7-10a --> export feature table, convert biom to tsv, export the taxonomy, reformat**
+
+Follow those steps and be sure to make sure file paths/names match
 
