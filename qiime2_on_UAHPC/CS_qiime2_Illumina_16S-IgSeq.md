@@ -1,4 +1,5 @@
-# CS qiime2 processing of IgG and IgA-seq reads, sequenced with Illumina Miseq/Nextseq (Demultiplexed paired reads (A) + multiplexed reads (B))
+# CS qiime2 processing of IgG and IgA-seq reads (Illumina)
+## Demultiplexed fastq files (part A)
 
 **Set up commands**
 
@@ -140,5 +141,9 @@ python -c "import pandas as pd; df=pd.read_csv('long_feature_table.tsv', sep='\t
 ```
 
 Now you can download the long_feature_table_ranks.tsv and use that for further IgG/IgA seq analysis, detailed elsewhere
+
+
+## Multiplexed fastq files
+
 
 
