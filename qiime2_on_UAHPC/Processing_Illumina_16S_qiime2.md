@@ -1,4 +1,6 @@
-# CS qiime2 processing of IgG and IgA-seq reads (Illumina)
+# CS qiime2 processing of Illumina 16S reads for Taxonomy
+
+This tutorial describes how to analyze Illumina 16S data on the HPC. It only details commands though taxonomic assignment and then continues with instrutctions on how to export the data as a long-format table where column corresponds to a feature. Qiime2 can be used for more than just taxonomic assignment - see the links at the bottom of each section for further analysis (creating figures, looking at alpha and beta diversity, and performing statistics)
 
 **Set up commands**
 
@@ -147,6 +149,8 @@ python -c "import pandas as pd; df=pd.read_csv('long_feature_table.tsv', sep='\t
 
 Now you can download the long_feature_table_ranks.tsv and use that for further IgG/IgA seq analysis, detailed elsewhere
 
+**Tutorials for further analysis can be found on the qiime webpage. There is not full tutorial for PairedEndFastqManifestPhred33V2 data, but you can find each of the steps on the tutorials page**
+https://docs.qiime2.org/2024.10/tutorials/
 
 ## PATH B: multiplexed fastq files (Illumina)
 ### Qiime2 format - EMPPairedEndSequences
@@ -218,4 +222,8 @@ apptainer exec -B xdisk/PI-netID/your-netID/ILLUMINA_16S/data:/data amplicon_202
 **Steps 8b-12b are the same as steps 7-10a --> export feature table, convert biom to tsv, export the taxonomy, reformat**
 
 Follow those steps and be sure to make sure file paths/names match
+
+
+**Further analysis instructions for EMPPairedEndSequences can be found in the Atacama soils tutorial**
+https://docs.qiime2.org/2024.10/tutorials/atacama-soils/
 
