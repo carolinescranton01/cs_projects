@@ -149,7 +149,7 @@ python -c "import pandas as pd; df=pd.read_csv('long_feature_table.tsv', sep='\t
 
 Now you can download the long_feature_table_ranks.tsv and use that for further IgG/IgA seq analysis, detailed elsewhere
 
-**Tutorials for further analysis can be found on the qiime webpage. There is not full tutorial for PairedEndFastqManifestPhred33V2 data, but you can find each of the steps on the tutorials page**
+**Tutorials for further analysis can be found on the qiime webpage. There is not a full tutorial for PairedEndFastqManifestPhred33V2 data, but you can find each of the steps on the tutorials page**
 https://docs.qiime2.org/2024.10/tutorials/
 
 ## PATH B: multiplexed fastq files (Illumina)
