@@ -1,4 +1,4 @@
-# CS qiime2 processing of Illumina 16S reads for Taxonomy
+# qiime2 processing of Illumina 16S reads for Taxonomy
 
 This tutorial describes how to analyze Illumina 16S data on the HPC. It only details commands though taxonomic assignment and then continues with instrutctions on how to export the data as a long-format table where column corresponds to a feature. Qiime2 can be used for more than just taxonomic assignment - see the links at the bottom of each section for further analysis (creating figures, looking at alpha and beta diversity, and performing statistics)
 
