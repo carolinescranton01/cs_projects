@@ -1,5 +1,5 @@
 # Long Reads analysis (oxford nanopore) 
-**IN PROGRESS 11/12/15**
+**IN PROGRESS 11/12/25**
 
 This tutorial walks through how to analyze long-read metagenomic data on the HPC. Basecalled data is uploaded into a project/raw_reads folder (project = your project name) as unzipped fastq files. Data is then filtered (trimmed) using filtlong based on read length and quality. Human (host) contamination is removed with minimap2 and a reference genome. Taxonomy is assigned via kraken2. Genomes are assembled with Flye, and binned into draft metagenomic-assembled genomes with metabat2, concoct, and maxbin2. Bins are checked with CheckM2. Functional analysis is conducted with prokka, and figures/stats are created in R using .biom files from kraken2/kraken-biom.
 
