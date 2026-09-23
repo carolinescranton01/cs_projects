@@ -23,10 +23,10 @@ cd ../fastq_all
 for f in *.fastq
 do
 n=${f%%.fastq}
-abricate --db vfdb --threads 94 --mincov 15 ${n}.fastq > ${n}_VFDB.tab
-abricate --db resfinder --threads 94 --mincov 15 ${n}.fastq > ${n}_resfinder.tab
-abricate --db ncbi --threads 94 --mincov 15 ${n}.fastq > ${n}_NCBI.tab
-abricate --db card --threads 94 --mincov 15 ${n}.fastq > ${n}_CARD.tab
+abricate --db vfdb --threads 94 --mincov 50 --minid 50 ${n}.fastq > ${n}_VFDB.tab
+abricate --db resfinder --threads 94 --mincov 50 --minid 50${n}.fastq > ${n}_resfinder.tab
+abricate --db ncbi --threads 94 --mincov 50 --minid 50 ${n}.fastq > ${n}_NCBI.tab
+abricate --db card --threads 94 --mincov 50 --minid 50 ${n}.fastq > ${n}_CARD.tab
 cp *CARD.tab ../CARD
 cp *NCBI.tab ../NCBI
 cp *VFDB.tab ../VFDB
