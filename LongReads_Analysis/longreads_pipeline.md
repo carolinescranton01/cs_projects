@@ -72,7 +72,7 @@ Now we have our indexed reference genome, so we can filter our reads against it:
 
 ```
 # single-sample command:
-inimap2 -ax map-ont "$HOST_INDEX" "$file" | samtools view -b -f 4 > "${base}_nonhost.bam"
+minimap2 -ax map-ont "$HOST_INDEX" "$file" | samtools view -b -f 4 > "${base}_nonhost.bam"
 
 # loop:
 # set host genome - change to match your file name if you did not use the human genome
