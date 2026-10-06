@@ -294,7 +294,6 @@ mv binning/*_checkm2 checkm2
 
 After CheckM2 is done, you have completed the tutorial. Email carolinescranton@arizona.edu with any questions or for information on how to continue analysis :)
 
-**edit 10-2-25**
 CONTINUING STEPS - Functional analysis with prokka
 
 Functional analysis looks at the DNA which was sequenced and maps the sequences to specific proteins, by identifying the 3-base-long codons to form amino acid sequences, which then it matches to protein databases to determine the different proteins that the genome codes for. It tells you what proteins the bacteria can *possibly* make, but one thing to remember is that just because the gene is present, it doesn't mean that the organism is ACTUALLY producing it. 
@@ -323,5 +322,50 @@ for fa in *.fa; do
 done
 ```
 There are more specific options that you can specify as well, like if you only want to identify genes from archea instea of bacteria, or if you have a reference genome, or how to subset the results for only proteins of interest. The output used for firther analysis is the .tsv file within the sample folder, but the other folders contain useful information as well (especially for looking at mutations). I am not an expert at this (and have never done it for any real samples), so please let me know if you are planning on using this and we can work together to figure out what the best steps are!
+
+**Alignment of short reads with reference genome**
+
+Alignment uses bowtie2
+
+```
+conda install bowtie2
+```
+
+Download genome from NCBI FTP
+```
+wget #paste link to genomic.fna.gz file here to download
+# use gunzip command to unzip and mv to rename it if shorter name is preferred
+```
+
+create index using bowtie2-build
+```
+bowtie2-build path/to/genome.fna path/to/index
+```
+
+Align to index (paired short reads)
+```
+# single sample
+bowtie2 -x path/to/index -1 path/to/reads/read1.fastq -2 path/to/reads/read2.fastq
+
+# loop, which converts the mapped reads (from either sample) to fastq format for later assembly
+# this requires samtools - conda install samtools
+for read1 in *_1.fastq; do
+    base="${read1%_1.fastq}"
+    read2="${base}_2.fastq"
+    # Map reads to index
+    bowtie2 \
+        -x /path/to/index \
+        -1 "$read1" \
+        -2 "$read2" \
+        -S "${base}_mapped.sam"
+
+    # Convert SAM to BAM
+    samtools view -b "${base}_mapped.sam" > "${base}_mapped.bam"
+
+    # Keep read pairs where either read mapped to index
+    samtools view -b -f 12 -F 4 "${base}_mapped.bam" > /dev/null
+    rm "${base}_mapped.sam"
+done
+```
 
 
